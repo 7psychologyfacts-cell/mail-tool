@@ -1,5 +1,5 @@
 """
-KAVACH MAIL — single-file backend
+MAILOPS — single-file backend
 Real IMAP engine + zip-stream / Google Drive direct-link downloads.
 Everything (config, security, IMAP, Drive, zip, routes) lives in this one
 file on purpose, so it's a 3-file GitHub repo: app.py + index.html + requirements.txt.
@@ -47,7 +47,7 @@ JWT_EXPIRE_MINUTES = 60 * 12
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 GOOGLE_REDIRECT_URI = os.environ.get("GOOGLE_REDIRECT_URI", "http://localhost:8000/api/auth/google/callback")
-DRIVE_FOLDER_NAME = os.environ.get("DRIVE_FOLDER_NAME", "Kavach Mail Exports")
+DRIVE_FOLDER_NAME = os.environ.get("DRIVE_FOLDER_NAME", "MailOps Exports")
 
 DIRECT_STREAM_THRESHOLD_BYTES = int(os.environ.get("DIRECT_STREAM_THRESHOLD_BYTES", 300 * 1024 * 1024))
 MAX_DOWNLOAD_BYTES = int(os.environ.get("MAX_DOWNLOAD_BYTES", 9 * 1024 * 1024 * 1024))  # 9GB
@@ -290,6 +290,14 @@ def fetch_summaries(conn: imaplib.IMAP4_SSL, folder: str, uids: list[str]) -> li
         attachments = _parse_bodystructure_attachments(meta_line)
         out.append(MessageSummary(uid, from_name, from_email, to_email, subject, "", date_iso,
                                    read, size_bytes, len(attachments) > 0, attachments))
+
+    # IMAP servers are not required to return FETCH responses in the order the
+    # UIDs were requested in — most return them in ascending UID/sequence order
+    # regardless. Since callers (e.g. search_mail) already sort `uids` the way
+    # they want them displayed (newest first), re-sort the fetched summaries
+    # back into that exact requested order so the list doesn't come back scrambled.
+    order = {uid: i for i, uid in enumerate(uids)}
+    out.sort(key=lambda s: order.get(s.uid, len(uids)))
     return out
 
 
@@ -550,7 +558,7 @@ class DownloadItem(BaseModel):
 class DownloadRequest(BaseModel):
     items: list[DownloadItem]
     mode: Literal["auto", "zip_stream", "drive_link"] = "auto"
-    archive_name: str = "kavach-mail-export"
+    archive_name: str = "mailops-mail-export"
 
 
 class DownloadSizeEstimate(BaseModel):
@@ -582,7 +590,7 @@ class DriveStatus(BaseModel):
 # FASTAPI APP + ROUTES  (all under /api so index.html can be served at "/")
 # ============================================================================
 
-app = FastAPI(title="Kavach Mail Backend", version="1.0.0")
+app = FastAPI(title="MailOps Backend", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=ALLOWED_ORIGINS, allow_credentials=True,
                     allow_methods=["*"], allow_headers=["*"])
 
@@ -599,12 +607,12 @@ def serve_frontend():
     path = os.path.join(os.path.dirname(__file__), "index.html")
     if os.path.exists(path):
         return FileResponse(path)
-    return HTMLResponse("<h1>Kavach Mail backend is running.</h1><p>index.html not found next to app.py.</p>")
+    return HTMLResponse("<h1>MailOps backend is running.</h1><p>index.html not found next to app.py.</p>")
 
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "kavach-mail-backend"}
+    return {"status": "ok", "service": "mailops-backend"}
 
 
 # ---- Auth ----
