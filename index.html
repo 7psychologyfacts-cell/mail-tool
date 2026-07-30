@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<html lang="en" class="h-full bg-slate-100 text-slate-800">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kavach Mail — Corporate Mail Manager</title>
+    <title>MailOps — Corporate Mail Manager</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -79,20 +79,20 @@
 
     <!-- ============ LOGIN GATE ============ -->
     <template x-if="!loggedIn">
-    <div class="fixed inset-0 z-[100] flex bg-slate-950" x-cloak>
+    <div :class="darkMode ? 'bg-slate-950' : 'bg-white'" class="fixed inset-0 z-[100] flex" x-cloak>
         <!-- left brand panel -->
         <div class="hidden lg:flex lg:w-[42%] relative overflow-hidden bg-gradient-to-br from-[var(--accent-700)] via-indigo-800 to-slate-950 text-white flex-col justify-between p-12">
             <div class="grain absolute inset-0"></div>
             <div class="relative z-10 flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center">
-                    <i class="fa-solid fa-shield-halved text-white text-lg"></i>
+                    <i class="fa-solid fa-envelopes-bulk text-white text-lg"></i>
                 </div>
-                <span class="font-display font-bold text-lg tracking-tight">Kavach Mail</span>
+                <span class="font-display font-bold text-lg tracking-tight">MailOps</span>
             </div>
             <div class="relative z-10 max-w-md">
                 <p class="font-mono text-sm uppercase tracking-[0.25em] text-white/50 mb-4">Enterprise Mail Console</p>
-                <h1 class="font-display text-[2.5rem] leading-[1.1] font-bold mb-5">Ek jagah se poora mailbox, poora control.</h1>
-                <p class="text-white/70 text-[15px] leading-relaxed">Gmail ya corporate ID se sign in karo, advanced search se seconds mein mail dhundo, aur bulk mein download ya archive karo.</p>
+                <h1 class="font-display text-[2.5rem] leading-[1.1] font-bold mb-5">One place for your entire mailbox, full control.</h1>
+                <p class="text-white/70 text-[15px] leading-relaxed">Sign in with your Gmail or corporate ID, find mail in seconds with advanced search, and download or archive in bulk.</p>
                 <div class="mt-10 flex space-x-6 font-mono text-sm text-white/50 uppercase tracking-wider">
                     <div><span class="block text-white text-xl font-bold font-display">6</span>Folders</div>
                     <div><span class="block text-white text-xl font-bold font-display">4</span>Search fields</div>
@@ -103,57 +103,57 @@
         </div>
 
         <!-- right login panel -->
-        <div class="flex-1 flex items-center justify-center p-6 bg-slate-950 overflow-y-auto">
+        <div :class="darkMode ? 'bg-slate-950' : 'bg-white'" class="flex-1 flex items-center justify-center p-6 overflow-y-auto">
             <div class="w-full max-w-[400px] fade-up">
                 <div class="lg:hidden flex items-center space-x-2 mb-8">
                     <div class="w-9 h-9 rounded-xl bg-[var(--accent-600)] flex items-center justify-center">
-                        <i class="fa-solid fa-shield-halved text-white"></i>
+                        <i class="fa-solid fa-envelopes-bulk text-white"></i>
                     </div>
-                    <span class="font-display font-bold text-lg text-white">Kavach Mail</span>
+                    <span class="font-display font-bold text-lg" :class="darkMode ? 'text-white' : 'text-slate-900'">MailOps</span>
                 </div>
 
-                <h2 class="font-display text-2xl font-bold text-white mb-1">Account se sign in karo</h2>
-                <p class="text-slate-400 text-base mb-7">Apna Gmail ya company ID chuno, direct inbox khul jaayega.</p>
+                <h2 class="font-display text-2xl font-bold mb-1" :class="darkMode ? 'text-white' : 'text-slate-900'">Sign in to your account</h2>
+                <p class="text-base mb-7" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">Choose your Gmail or company ID, and your inbox opens right away.</p>
 
                 <!-- account type toggle -->
-                <div class="grid grid-cols-2 gap-2 p-1 bg-slate-900 rounded-xl mb-6 border border-slate-800">
-                    <button type="button" @click="gateLoginType='gmail'" :class="gateLoginType==='gmail' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400'" class="flex items-center justify-center space-x-2 py-2.5 rounded-lg text-base font-medium transition-all">
+                <div class="grid grid-cols-2 gap-2 p-1 rounded-xl mb-6 border" :class="darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'">
+                    <button type="button" @click="gateLoginType='gmail'" :class="gateLoginType==='gmail' ? (darkMode ? 'bg-slate-700 text-white shadow-sm' : 'bg-white text-slate-900 shadow-sm') : (darkMode ? 'text-slate-400' : 'text-slate-500')" class="flex items-center justify-center space-x-2 py-2.5 rounded-lg text-base font-medium transition-all">
                         <i class="fa-brands fa-google"></i><span>Gmail ID</span>
                     </button>
-                    <button type="button" @click="gateLoginType='corporate'" :class="gateLoginType==='corporate' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400'" class="flex items-center justify-center space-x-2 py-2.5 rounded-lg text-base font-medium transition-all">
+                    <button type="button" @click="gateLoginType='corporate'" :class="gateLoginType==='corporate' ? (darkMode ? 'bg-slate-700 text-white shadow-sm' : 'bg-white text-slate-900 shadow-sm') : (darkMode ? 'text-slate-400' : 'text-slate-500')" class="flex items-center justify-center space-x-2 py-2.5 rounded-lg text-base font-medium transition-all">
                         <i class="fa-solid fa-building-user"></i><span>Company ID</span>
                     </button>
                 </div>
 
                 <form @submit.prevent="signIn()" class="space-y-4">
                     <div>
-                        <label class="text-sm font-medium text-slate-400 mb-1.5 block" x-text="gateLoginType==='gmail' ? 'Gmail address' : 'Corporate email / employee ID'"></label>
+                        <label class="text-sm font-medium mb-1.5 block" :class="darkMode ? 'text-slate-400' : 'text-slate-600'" x-text="gateLoginType==='gmail' ? 'Gmail address' : 'Corporate email / employee ID'"></label>
                         <div class="relative">
                             <i class="fa-regular fa-envelope absolute left-3 top-3.5 text-slate-500 text-sm"></i>
-                            <input x-model="loginEmailInput" type="text" :placeholder="gateLoginType==='gmail' ? 'aapka.naam@gmail.com' : 'aapka.naam@company.com'" class="w-full pl-9 pr-3 bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2.5 text-base text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[var(--accent-500)]" required>
+                            <input x-model="loginEmailInput" type="text" :placeholder="gateLoginType==='gmail' ? 'your.name@gmail.com' : 'your.name@company.com'" :class="darkMode ? 'bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-600' : 'bg-slate-50 border-slate-300 text-slate-800 placeholder-slate-400'" class="w-full pl-9 pr-3 border rounded-lg px-3.5 py-2.5 text-base focus:outline-none focus:border-[var(--accent-500)]" required>
                         </div>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-slate-400 mb-1.5 block">Password</label>
+                        <label class="text-sm font-medium mb-1.5 block" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">Password</label>
                         <div class="relative">
                             <i class="fa-solid fa-key absolute left-3 top-3.5 text-slate-500 text-sm"></i>
-                            <input x-model="loginPasswordInput" type="password" placeholder="••••••••••" class="w-full pl-9 pr-3 bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2.5 text-base text-slate-100 focus:outline-none focus:border-[var(--accent-500)]" required>
+                            <input x-model="loginPasswordInput" type="password" placeholder="••••••••••" :class="darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-slate-50 border-slate-300 text-slate-800'" class="w-full pl-9 pr-3 border rounded-lg px-3.5 py-2.5 text-base focus:outline-none focus:border-[var(--accent-500)]" required>
                         </div>
-                        <p class="text-xs text-slate-500 mt-1">Gmail/Workspace: use an <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-[var(--accent-500)] hover:underline">App Password</a>, not your normal login password.</p>
+                        <p class="text-xs mt-1" :class="darkMode ? 'text-slate-500' : 'text-slate-500'">Gmail/Workspace: use an <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-[var(--accent-500)] hover:underline">App Password</a>, not your normal login password.</p>
                     </div>
                     <template x-if="gateLoginType==='corporate'">
                         <div>
-                            <label class="text-sm font-medium text-slate-400 mb-1.5 block">IMAP server (optional)</label>
-                            <input x-model="loginImapHost" type="text" placeholder="mail.yourcompany.com (auto-detected if blank)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2.5 text-base text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[var(--accent-500)]">
+                            <label class="text-sm font-medium mb-1.5 block" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">IMAP server (optional)</label>
+                            <input x-model="loginImapHost" type="text" placeholder="mail.yourcompany.com (auto-detected if blank)" :class="darkMode ? 'bg-slate-900 border-slate-800 text-slate-100 placeholder-slate-600' : 'bg-slate-50 border-slate-300 text-slate-800 placeholder-slate-400'" class="w-full border rounded-lg px-3.5 py-2.5 text-base focus:outline-none focus:border-[var(--accent-500)]">
                         </div>
                     </template>
                     <p x-show="loginError" x-text="loginError" class="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2"></p>
                     <button type="submit" :disabled="authing" class="w-full bg-gradient-to-r from-[var(--accent-600)] to-indigo-600 hover:from-[var(--accent-500)] hover:to-indigo-500 text-white text-base font-semibold py-2.5 rounded-lg transition-all flex items-center justify-center space-x-2 shadow-lg shadow-[rgb(var(--accent-rgb)/0.2)] disabled:opacity-60">
                         <i x-show="authing" class="fa-solid fa-circle-notch fa-spin"></i>
-                        <span x-text="authing ? 'Sign-in ho raha hai…' : 'Sign in & Inbox kholo'"></span>
+                        <span x-text="authing ? 'Signing in…' : 'Sign in & Open Inbox'"></span>
                     </button>
                 </form>
-                <p class="text-center text-sm text-slate-500 mt-6">Real IMAP sign-in — aapka email server se seedha connect karega.</p>
+                <p class="text-center text-sm text-slate-500 mt-6">Real IMAP sign-in — connects directly to your email server.</p>
             </div>
         </div>
     </div>
@@ -168,11 +168,11 @@
         <!-- Brand & Connection Status -->
         <div class="flex items-center space-x-3 w-64">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--accent-600)] to-cyan-500 flex items-center justify-center shadow-lg shadow-[rgb(var(--accent-rgb)/0.2)]">
-                <i class="fa-solid me-0 fa-shield-halved text-white text-xl"></i>
+                <i class="fa-solid me-0 fa-envelopes-bulk text-white text-xl"></i>
             </div>
             <div>
                 <div class="flex items-center space-x-1.5">
-                    <span class="font-display font-bold text-base tracking-wide" :class="darkMode ? 'text-white' : 'text-slate-900'">Kavach Mail</span>
+                    <span class="font-display font-bold text-base tracking-wide" :class="darkMode ? 'text-white' : 'text-slate-900'">MailOps</span>
                     <span class="text-xs px-1.5 py-0.5 rounded bg-[rgb(var(--accent-rgb)/0.2)] text-[var(--accent-500)] font-semibold border border-[rgb(var(--accent-rgb)/0.3)]">PRO</span>
                 </div>
                 <div class="flex items-center space-x-1.5 text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">
@@ -223,50 +223,8 @@
             </div>
         </div>
 
-        <!-- Account Switcher, Theme Toggle & User Profile -->
+        <!-- Account Switcher & User Profile -->
         <div class="flex items-center space-x-2.5">
-            <!-- Theme Toggle Button -->
-            <button @click="toggleTheme()" 
-                    :title="darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                    :class="darkMode ? 'bg-slate-800 text-amber-400 hover:bg-slate-700 border-slate-700' : 'bg-slate-100 text-indigo-600 hover:bg-slate-200 border-slate-300'"
-                    class="p-2 rounded-xl border flex items-center justify-center transition-all duration-200 shadow-sm"
-                    aria-label="Toggle Theme">
-                <i :class="darkMode ? 'fa-solid fa-sun text-base' : 'fa-solid fa-moon text-base'"></i>
-            </button>
-
-            <!-- Colour Theme Picker (10 accent themes, independent of dark/light) -->
-            <div class="relative" @click.outside="showThemePicker = false">
-                <button @click="showThemePicker = !showThemePicker" title="Choose colour theme"
-                        :class="darkMode ? 'bg-slate-800 hover:bg-slate-700 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 border-slate-300'"
-                        class="p-2 rounded-xl border flex items-center justify-center transition-all duration-200 shadow-sm"
-                        aria-label="Choose colour theme">
-                    <i class="fa-solid fa-palette text-base" :style="'color: var(--accent-500)'"></i>
-                </button>
-
-                <div x-show="showThemePicker"
-                     x-transition:enter="transition ease-out duration-100"
-                     x-transition:enter-start="transform opacity-0 scale-95"
-                     x-transition:enter-end="transform opacity-100 scale-100"
-                     :class="darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xl'"
-                     class="absolute right-0 mt-2 w-64 border rounded-2xl shadow-2xl p-3 z-50"
-                     style="display:none;">
-                    <p class="text-xs font-bold uppercase tracking-wider px-1 pb-2" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">Colour theme</p>
-                    <div class="grid grid-cols-5 gap-2">
-                        <template x-for="t in themes" :key="t.id">
-                            <button @click="setTheme(t.id)" :title="t.name"
-                                    class="group flex flex-col items-center gap-1 p-1.5 rounded-xl transition"
-                                    :class="theme === t.id ? (darkMode ? 'bg-slate-800' : 'bg-slate-100') : ''">
-                                <span class="w-7 h-7 rounded-full border-2 flex items-center justify-center"
-                                      :style="'background-color:' + t.swatch + '; border-color:' + (theme === t.id ? t.swatch : 'transparent')">
-                                    <i x-show="theme === t.id" class="fa-solid fa-check text-white text-[10px]"></i>
-                                </span>
-                                <span class="text-[10px]" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="t.name"></span>
-                            </button>
-                        </template>
-                    </div>
-                </div>
-            </div>
-
             <button @click="showLoginModal = true" title="Switch Corporate Account" 
                     :class="darkMode ? 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700/60' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'"
                     class="hidden sm:flex items-center space-x-2 px-3 py-1.5 text-sm border rounded-xl transition font-medium">
@@ -308,22 +266,53 @@
                         <span><i class="fa-solid fa-rotate-right mr-2 text-slate-400"></i> Sync Mailbox</span>
                         <span class="text-xs text-slate-400">Just now</span>
                     </a>
-                    <a href="#" @click.prevent="toggleTheme(); open = false" 
-                       :class="darkMode ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-slate-100 text-slate-700'"
-                       class="block px-4 py-2 flex items-center justify-between">
-                        <span><i :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon text-indigo-500'" class="fa-solid mr-2"></i> Toggle Theme</span>
-                        <span class="text-xs capitalize font-semibold" x-text="darkMode ? 'Dark' : 'Light'"></span>
-                    </a>
                     <a href="#" @click.prevent="showLoginModal = true; open = false" 
                        :class="darkMode ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-slate-100 text-slate-700'"
                        class="block px-4 py-2">
                         <i class="fa-solid fa-right-to-bracket mr-2 text-slate-400"></i> Change Corporate / Gmail ID
                     </a>
-                    <a href="#" @click.prevent="showToast('Security logs exported')" 
+                    <a href="#" @click.prevent="exportAuditLog(); open = false" 
                        :class="darkMode ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-slate-100 text-slate-700'"
                        class="block px-4 py-2">
                         <i class="fa-solid fa-vault mr-2 text-slate-400"></i> Security & Audit Log
                     </a>
+
+                    <!-- Settings: Mode & Colour theme -->
+                    <div class="border-t mt-1 pt-2 px-4" :class="darkMode ? 'border-slate-800' : 'border-slate-200'">
+                        <p class="text-xs font-bold uppercase tracking-wider pb-2" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">
+                            <i class="fa-solid fa-gear mr-1.5"></i> Settings
+                        </p>
+
+                        <!-- Mode picker (Light / Dark) -->
+                        <p class="text-xs font-semibold mb-1.5" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">Mode</p>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <button @click="setMode(false)" type="button"
+                                    class="flex items-center justify-center space-x-1.5 py-1.5 rounded-lg text-xs font-semibold border transition"
+                                    :class="!darkMode ? 'bg-[var(--accent-600)] text-white border-[var(--accent-600)]' : (darkMode ? 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200')">
+                                <i class="fa-solid fa-sun"></i><span>Light</span>
+                            </button>
+                            <button @click="setMode(true)" type="button"
+                                    class="flex items-center justify-center space-x-1.5 py-1.5 rounded-lg text-xs font-semibold border transition"
+                                    :class="darkMode ? 'bg-[var(--accent-600)] text-white border-[var(--accent-600)]' : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200'">
+                                <i class="fa-solid fa-moon"></i><span>Dark</span>
+                            </button>
+                        </div>
+
+                        <!-- Colour theme picker -->
+                        <p class="text-xs font-semibold mb-1.5" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">Colour theme</p>
+                        <div class="grid grid-cols-5 gap-2 pb-2">
+                            <template x-for="t in themes" :key="t.id">
+                                <button @click="setTheme(t.id)" :title="t.name" type="button"
+                                        class="group flex flex-col items-center gap-1 p-1 rounded-xl transition"
+                                        :class="theme === t.id ? (darkMode ? 'bg-slate-800' : 'bg-slate-100') : ''">
+                                    <span class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
+                                          :style="'background-color:' + t.swatch + '; border-color:' + (theme === t.id ? t.swatch : 'transparent')">
+                                        <i x-show="theme === t.id" class="fa-solid fa-check text-white text-[9px]"></i>
+                                    </span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
                     <div class="border-t mt-1 pt-1" :class="darkMode ? 'border-slate-800' : 'border-slate-200'">
                         <a href="#" @click.prevent="open = false; signOut()" 
                            :class="darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'"
@@ -395,21 +384,6 @@
                 </template>
             </nav>
 
-            <!-- Storage & Compliance Stats -->
-            <div :class="darkMode ? 'border-slate-800 bg-slate-950/40 text-slate-400' : 'border-slate-200 bg-slate-50 text-slate-600'" 
-                 class="p-3 border-t text-sm">
-                <div class="flex justify-between text-sm mb-1">
-                    <span>Corporate Vault Storage</span>
-                    <span class="font-medium" :class="darkMode ? 'text-slate-300' : 'text-slate-700'">14.2 GB / 50 GB</span>
-                </div>
-                <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                    <div class="bg-gradient-to-r from-[var(--accent-500)] to-indigo-500 h-full rounded-full" style="width: 28.4%"></div>
-                </div>
-                <p class="mt-2 text-xs flex items-center" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">
-                    <i class="fa-solid fa-lock text-emerald-500 mr-1.5"></i>
-                    256-Bit TLS End-to-End Encrypted
-                </p>
-            </div>
         </aside>
 
         <!-- MIDDLE PANE: EMAIL LIST VIEW -->
@@ -433,6 +407,16 @@
 
                     <!-- Quick Folder Title -->
                     <div class="text-sm font-bold capitalize" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="currentFolder"></div>
+
+                    <!-- Mail Sort Control -->
+                    <select x-model="sortBy" title="Sort mail"
+                            :class="darkMode ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-white text-slate-600 border-slate-300'"
+                            class="text-xs font-semibold border rounded-lg px-2 py-1 focus:outline-none focus:border-[var(--accent-500)]">
+                        <option value="date_desc">Newest first</option>
+                        <option value="date_asc">Oldest first</option>
+                        <option value="sender">Sender A–Z</option>
+                        <option value="unread">Unread first</option>
+                    </select>
                 </div>
 
                 <!-- Action Button Options Bar -->
@@ -924,11 +908,10 @@
                 loadingEmails: false,
 
                 // Theme Toggle State (background/text — dark vs light)
-                darkMode: true,
+                darkMode: false,
 
                 // Accent Colour Theme (independent of dark/light mode)
                 theme: 'ocean',
-                showThemePicker: false,
                 themes: [
                     { id: 'ocean',    name: 'Ocean',    swatch: '#3b82f6' },
                     { id: 'emerald',  name: 'Emerald',  swatch: '#10b981' },
@@ -944,10 +927,16 @@
                 setTheme(id) {
                     this.theme = id;
                     localStorage.setItem('mail_theme_color', id);
-                    this.showThemePicker = false;
                     const t = this.themes.find(x => x.id === id);
+                    this.logAudit('Colour theme changed', t ? t.name : id);
                     this.showToast('Theme switched to ' + (t ? t.name : id));
                 },
+
+                // Mail list sort order (client-side, applied to the currently loaded page)
+                sortBy: 'date_desc',
+
+                // Security & Audit Log — records real actions taken this session
+                auditLog: [],
 
                 // UI Visibility state
                 showLoginModal: false,
@@ -997,8 +986,8 @@
                         this.theme = savedColor;
                     }
 
-                    const savedToken = localStorage.getItem('kavach_token');
-                    const savedEmail = localStorage.getItem('kavach_email');
+                    const savedToken = localStorage.getItem('mailops_token');
+                    const savedEmail = localStorage.getItem('mailops_email');
                     if (!savedToken) return;
 
                     this.token = savedToken;
@@ -1030,8 +1019,8 @@
 
                 clearSession() {
                     this.token = null;
-                    localStorage.removeItem('kavach_token');
-                    localStorage.removeItem('kavach_email');
+                    localStorage.removeItem('mailops_token');
+                    localStorage.removeItem('mailops_email');
                     this.loggedIn = false;
                 },
 
@@ -1105,7 +1094,7 @@
                         id: r.uid, uid: r.uid, folder: r.folder,
                         fromName: r.from_name || r.from_email, fromEmail: r.from_email, toEmail: r.to_email,
                         subject: r.subject || '(no subject)', snippet: r.snippet || '',
-                        body: '', formattedDate: dt.formattedDate, dateISO: dt.dateISO, fullTimestamp: dt.fullTimestamp,
+                        body: '', formattedDate: dt.formattedDate, dateISO: dt.dateISO, rawDate: r.date_iso || '', fullTimestamp: dt.fullTimestamp,
                         read: r.read, starred: false, tag: null,
                         hasAttachment: r.has_attachment,
                         attachments: (r.attachments || []).map(a => ({ name: a.filename, size: this.formatBytes(a.size_bytes), type: this.extType(a.filename) }))
@@ -1131,7 +1120,7 @@
                 // Real IMAP sign-in
                 async signIn() {
                     if (!this.loginEmailInput || !this.loginPasswordInput) {
-                        this.loginError = 'Email and password dono chahiye.';
+                        this.loginError = 'Email and password are both required.';
                         return;
                     }
                     this.authing = true;
@@ -1149,12 +1138,12 @@
                         });
                         const data = await res.json().catch(() => ({}));
                         if (!res.ok) {
-                            throw new Error(data.detail || 'Sign-in fail hua. Email, password aur IMAP settings check karein.');
+                            throw new Error(data.detail || 'Sign-in failed. Please check your email, password, and IMAP settings.');
                         }
 
                         this.token = data.access_token;
-                        localStorage.setItem('kavach_token', this.token);
-                        localStorage.setItem('kavach_email', data.email);
+                        localStorage.setItem('mailops_token', this.token);
+                        localStorage.setItem('mailops_email', data.email);
                         this.currentUser = this.userFromEmail(data.email);
 
                         await this.loadFolders();
@@ -1164,6 +1153,7 @@
                         this.showLoginModal = false;
                         this.loginPasswordInput = '';
                         await this.searchMail(1);
+                        this.logAudit('Signed in', data.email);
                         this.showToast(`Welcome, ${this.currentUser.name}! Inbox synced.`);
                     } catch (e) {
                         this.loginError = e.message || 'Sign-in failed.';
@@ -1175,16 +1165,31 @@
 
                 // Toggle Theme
                 toggleTheme() {
-                    this.darkMode = !this.darkMode;
+                    this.setMode(!this.darkMode);
+                },
+
+                // Explicit mode setter, used by the Settings panel
+                setMode(isDark) {
+                    this.darkMode = isDark;
                     localStorage.setItem('mail_theme', this.darkMode ? 'dark' : 'light');
+                    this.logAudit('Mode changed', this.darkMode ? 'Dark' : 'Light');
                     this.showToast(this.darkMode ? 'Dark Mode Activated' : 'Light Mode Activated');
                 },
 
-                // The list is already filtered/searched server-side by /api/search —
-                // this just exposes the current page's results under the name the
-                // template already uses everywhere.
+                // The list is fetched from /api/search already paginated — this applies
+                // the chosen sort order to the currently loaded page of results.
                 get filteredEmails() {
-                    return this.emails;
+                    const arr = this.emails.slice();
+                    if (this.sortBy === 'date_desc') {
+                        arr.sort((a, b) => new Date(b.rawDate || 0) - new Date(a.rawDate || 0));
+                    } else if (this.sortBy === 'date_asc') {
+                        arr.sort((a, b) => new Date(a.rawDate || 0) - new Date(b.rawDate || 0));
+                    } else if (this.sortBy === 'sender') {
+                        arr.sort((a, b) => (a.fromName || '').localeCompare(b.fromName || ''));
+                    } else if (this.sortBy === 'unread') {
+                        arr.sort((a, b) => (a.read === b.read) ? 0 : (a.read ? 1 : -1));
+                    }
+                    return arr;
                 },
 
                 // Real server-backed search across folder + universal query + advanced filters
@@ -1332,9 +1337,11 @@
                         if (contentType.includes('application/zip')) {
                             const blob = await res.blob();
                             this.triggerBlobDownload(blob, `${archiveName}.zip`);
+                            this.logAudit('Mail downloaded', `${items.length} item(s) as ${archiveName}.zip`);
                             this.showToast('Download complete');
                         } else {
                             const data = await res.json();
+                            this.logAudit('Mail exported to Google Drive', data.file_name);
                             this.showToast(`Large export uploaded to Google Drive: ${data.file_name}`);
                             if (data.download_url) window.open(data.download_url, '_blank');
                         }
@@ -1351,7 +1358,7 @@
                         const e = this.emails.find(x => x.uid === uid);
                         return { uid, folder: e ? e.folder : this.currentFolder, part_ids: null };
                     });
-                    this.runZipDownload(items, `kavach-mail-export-${Date.now()}`);
+                    this.runZipDownload(items, `mailops-mail-export-${Date.now()}`);
                 },
 
                 // Single email download (from the detail pane)
@@ -1385,6 +1392,7 @@
                     this.emails = this.emails.filter(e => !this.selectedEmailIds.includes(e.uid));
                     this.selectedEmailIds = [];
                     this.selectedEmail = this.emails.length > 0 ? this.emails[0] : null;
+                    this.logAudit('Emails removed from view', `${count} item(s)`);
                     this.showToast(`Removed ${count} email(s) from this view (server-side delete isn't available yet)`);
                 },
 
@@ -1408,6 +1416,7 @@
                         }
                     }
                     this.showToast('Marked selected as read');
+                    this.logAudit('Marked emails as read', `${ids.length} item(s)`);
                     this.loadFolders();
                 },
 
@@ -1430,6 +1439,7 @@
 
                 // Sign out back to the login gate
                 signOut() {
+                    this.logAudit('Signed out', this.currentUser.email || '');
                     this.clearSession();
                     this.selectedEmailIds = [];
                     this.selectedEmail = null;
@@ -1481,6 +1491,23 @@
                     setTimeout(() => {
                         this.toast.visible = false;
                     }, 3000);
+                },
+
+                // ---- Security & Audit Log ----
+
+                logAudit(action, detail = '') {
+                    this.auditLog.push({ time: new Date().toISOString(), user: this.currentUser.email || '', action, detail });
+                },
+
+                exportAuditLog() {
+                    this.logAudit('Security & Audit Log exported');
+                    const header = 'Time,User,Action,Detail';
+                    const rows = this.auditLog.map(e => [e.time, e.user, e.action, e.detail]
+                        .map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+                    const csv = [header, ...rows].join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    this.triggerBlobDownload(blob, `mailops-audit-log-${Date.now()}.csv`);
+                    this.showToast('Security & audit log exported');
                 }
             }
         }
