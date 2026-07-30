@@ -4,8 +4,15 @@
 
 Built as a lean **3-file full-stack project**: one FastAPI backend, one Alpine.js + Tailwind frontend, one requirements file. No database, no build step, no framework bloat — just clean, deployable code.
 
-> 🔗 **Live demo:** *add your deployed Vercel URL here*
-> 🖼️ **Screenshots:** *add 2–3 screenshots of the inbox, email detail view, and settings panel here*
+> 🔗 **Live demo:** *https://mailops-mail.vercel.app/*
+> 
+> 🖼️ **Screenshots:**
+> 
+><img width="1919" height="946" alt="image" src="https://github.com/user-attachments/assets/d8d5679f-e45c-464b-9e1f-8c9a734ca721" />
+---
+><img width="1917" height="997" alt="image" src="https://github.com/user-attachments/assets/ae2de3ff-4c12-41de-8d62-4f59d165f803" />
+
+
 
 ---
 
@@ -152,9 +159,9 @@ This repo ships with a `vercel.json` already configured for the Python runtime �
 
 *(Replace this section with your own introduction — a couple of lines about your background, what you're looking for, and links to your GitHub/LinkedIn/portfolio. This is the section recruiters read first, so keep it short and confident.)*
 
-**[Your Name]** — building practical, production-style projects to demonstrate full-stack engineering skills: real API integrations, secure auth, streaming file handling, and clean UI/UX — not just tutorials.
+**Milan Vadher** — building practical, production-style projects to demonstrate full-stack engineering skills: real API integrations, secure auth, streaming file handling, and clean UI/UX — not just tutorials.
 
-📧 your.email@example.com · 💼 [LinkedIn](#) · 💻 [GitHub](#)
+📧 milanvadher2003@gmail.com 
 
 ---
 
