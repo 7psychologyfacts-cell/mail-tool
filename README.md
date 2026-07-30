@@ -157,8 +157,6 @@ This repo ships with a `vercel.json` already configured for the Python runtime �
 
 ## 👤 About the Developer
 
-*(Replace this section with your own introduction — a couple of lines about your background, what you're looking for, and links to your GitHub/LinkedIn/portfolio. This is the section recruiters read first, so keep it short and confident.)*
-
 **Milan Vadher** — building practical, production-style projects to demonstrate full-stack engineering skills: real API integrations, secure auth, streaming file handling, and clean UI/UX — not just tutorials.
 
 📧 milanvadher2003@gmail.com 
