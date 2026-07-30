@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kavach Mail — Corporate Mail Manager</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Custom scrollbar for sleek corporate UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(71, 85, 105, 1);
+        }
+        .font-display { font-family: 'Sora', sans-serif; }
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+        .grain { background-image: radial-gradient(#fff 0.5px, transparent 0.5px); background-size: 14px 14px; opacity: 0.05; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-up { animation: fadeUp .35s ease both; }
+
+        /* ============ ACCENT THEME SYSTEM (independent of dark/light mode) ============ */
+        :root, [data-theme="ocean"]   { --accent-50:#eff6ff; --accent-100:#dbeafe; --accent-200:#bfdbfe; --accent-400:#60a5fa; --accent-500:#3b82f6; --accent-600:#2563eb; --accent-700:#1d4ed8; --accent-950:#172554; --accent-rgb:59 130 246; }
+        [data-theme="emerald"]        { --accent-50:#ecfdf5; --accent-100:#d1fae5; --accent-200:#a7f3d0; --accent-400:#34d399; --accent-500:#10b981; --accent-600:#059669; --accent-700:#047857; --accent-950:#022c22; --accent-rgb:16 185 129; }
+        [data-theme="violet"]         { --accent-50:#f5f3ff; --accent-100:#ede9fe; --accent-200:#ddd6fe; --accent-400:#a78bfa; --accent-500:#8b5cf6; --accent-600:#7c3aed; --accent-700:#6d28d9; --accent-950:#2e1065; --accent-rgb:139 92 246; }
+        [data-theme="amber"]          { --accent-50:#fffbeb; --accent-100:#fef3c7; --accent-200:#fde68a; --accent-400:#fbbf24; --accent-500:#f59e0b; --accent-600:#d97706; --accent-700:#b45309; --accent-950:#451a03; --accent-rgb:245 158 11; }
+        [data-theme="rose"]           { --accent-50:#fff1f2; --accent-100:#ffe4e6; --accent-200:#fecdd3; --accent-400:#fb7185; --accent-500:#f43f5e; --accent-600:#e11d48; --accent-700:#be123c; --accent-950:#4c0519; --accent-rgb:244 63 94; }
+        [data-theme="indigo"]         { --accent-50:#eef2ff; --accent-100:#e0e7ff; --accent-200:#c7d2fe; --accent-400:#818cf8; --accent-500:#6366f1; --accent-600:#4f46e5; --accent-700:#4338ca; --accent-950:#1e1b4b; --accent-rgb:99 102 241; }
+        [data-theme="teal"]           { --accent-50:#f0fdfa; --accent-100:#ccfbf1; --accent-200:#99f6e4; --accent-400:#2dd4bf; --accent-500:#14b8a6; --accent-600:#0d9488; --accent-700:#0f766e; --accent-950:#042f2e; --accent-rgb:20 184 166; }
+        [data-theme="crimson"]        { --accent-50:#fef2f2; --accent-100:#fee2e2; --accent-200:#fecaca; --accent-400:#f87171; --accent-500:#ef4444; --accent-600:#dc2626; --accent-700:#b91c1c; --accent-950:#450a0a; --accent-rgb:239 68 68; }
+        [data-theme="graphite"]       { --accent-50:#f8fafc; --accent-100:#f1f5f9; --accent-200:#e2e8f0; --accent-400:#94a3b8; --accent-500:#64748b; --accent-600:#475569; --accent-700:#334155; --accent-950:#020617; --accent-rgb:100 116 139; }
+        [data-theme="cyan"]           { --accent-50:#ecfeff; --accent-100:#cffafe; --accent-200:#a5f3fc; --accent-400:#22d3ee; --accent-500:#06b6d4; --accent-600:#0891b2; --accent-700:#0e7490; --accent-950:#083344; --accent-rgb:6 182 212; }
+    </style>
+</head>
+<body class="h-full font-sans antialiased overflow-hidden flex flex-col transition-colors duration-300" 
+      :class="darkMode ? 'bg-slate-950 text-slate-200' : 'bg-slate-100 text-slate-800'"
+      x-data="emailApp()" x-init="initApp()" :data-theme="theme">
+
+    <!-- ============ LOGIN GATE ============ -->
+    <template x-if="!loggedIn">
+    <div class="fixed inset-0 z-[100] flex bg-slate-950" x-cloak>
+        <!-- left brand panel -->
+        <div class="hidden lg:flex lg:w-[42%] relative overflow-hidden bg-gradient-to-br from-[var(--accent-700)] via-indigo-800 to-slate-950 text-white flex-col justify-between p-12">
+            <div class="grain absolute inset-0"></div>
+            <div class="relative z-10 flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center">
+                    <i class="fa-solid fa-shield-halved text-white text-lg"></i>
+                </div>
+                <span class="font-display font-bold text-lg tracking-tight">Kavach Mail</span>
+            </div>
+            <div class="relative z-10 max-w-md">
+                <p class="font-mono text-sm uppercase tracking-[0.25em] text-white/50 mb-4">Enterprise Mail Console</p>
+                <h1 class="font-display text-[2.5rem] leading-[1.1] font-bold mb-5">Ek jagah se poora mailbox, poora control.</h1>
+                <p class="text-white/70 text-[15px] leading-relaxed">Gmail ya corporate ID se sign in karo, advanced search se seconds mein mail dhundo, aur bulk mein download ya archive karo.</p>
+                <div class="mt-10 flex space-x-6 font-mono text-sm text-white/50 uppercase tracking-wider">
+                    <div><span class="block text-white text-xl font-bold font-display">6</span>Folders</div>
+                    <div><span class="block text-white text-xl font-bold font-display">4</span>Search fields</div>
+                    <div><span class="block text-white text-xl font-bold font-display">2</span>Download modes</div>
+                </div>
+            </div>
+            <p class="relative z-10 text-white/35 text-sm font-mono">Supported: Google Workspace · Office 365 · cPanel · Zimbra</p>
+        </div>
+
+        <!-- right login panel -->
+        <div class="flex-1 flex items-center justify-center p-6 bg-slate-950 overflow-y-auto">
+            <div class="w-full max-w-[400px] fade-up">
+                <div class="lg:hidden flex items-center space-x-2 mb-8">
+                    <div class="w-9 h-9 rounded-xl bg-[var(--accent-600)] flex items-center justify-center">
+                        <i class="fa-solid fa-shield-halved text-white"></i>
+                    </div>
+                    <span class="font-display font-bold text-lg text-white">Kavach Mail</span>
+                </div>
+
+                <h2 class="font-display text-2xl font-bold text-white mb-1">Account se sign in karo</h2>
+                <p class="text-slate-400 text-base mb-7">Apna Gmail ya company ID chuno, direct inbox khul jaayega.</p>
+
+                <!-- account type toggle -->
+                <div class="grid grid-cols-2 gap-2 p-1 bg-slate-900 rounded-xl mb-6 border border-slate-800">
+                    <button type="button" @click="gateLoginType='gmail'" :class="gateLoginType==='gmail' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400'" class="flex items-center justify-center space-x-2 py-2.5 rounded-lg text-base font-medium transition-all">
+                        <i class="fa-brands fa-google"></i><span>Gmail ID</span>
+                    </button>
+                    <button type="button" @click="gateLoginType='corporate'" :class="gateLoginType==='corporate' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400'" class="flex items-center justify-center space-x-2 py-2.5 rounded-lg text-base font-medium transition-all">
+                        <i class="fa-solid fa-building-user"></i><span>Company ID</span>
+                    </button>
+                </div>
+
+                <form @submit.prevent="signIn()" class="space-y-4">
+                    <div>
+                        <label class="text-sm font-medium text-slate-400 mb-1.5 block" x-text="gateLoginType==='gmail' ? 'Gmail address' : 'Corporate email / employee ID'"></label>
+                        <div class="relative">
+                            <i class="fa-regular fa-envelope absolute left-3 top-3.5 text-slate-500 text-sm"></i>
+                            <input x-model="loginEmailInput" type="text" :placeholder="gateLoginType==='gmail' ? 'aapka.naam@gmail.com' : 'aapka.naam@company.com'" class="w-full pl-9 pr-3 bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2.5 text-base text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[var(--accent-500)]" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-slate-400 mb-1.5 block">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-key absolute left-3 top-3.5 text-slate-500 text-sm"></i>
+                            <input x-model="loginPasswordInput" type="password" placeholder="••••••••••" class="w-full pl-9 pr-3 bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2.5 text-base text-slate-100 focus:outline-none focus:border-[var(--accent-500)]" required>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Gmail/Workspace: use an <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-[var(--accent-500)] hover:underline">App Password</a>, not your normal login password.</p>
+                    </div>
+                    <template x-if="gateLoginType==='corporate'">
+                        <div>
+                            <label class="text-sm font-medium text-slate-400 mb-1.5 block">IMAP server (optional)</label>
+                            <input x-model="loginImapHost" type="text" placeholder="mail.yourcompany.com (auto-detected if blank)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2.5 text-base text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[var(--accent-500)]">
+                        </div>
+                    </template>
+                    <p x-show="loginError" x-text="loginError" class="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2"></p>
+                    <button type="submit" :disabled="authing" class="w-full bg-gradient-to-r from-[var(--accent-600)] to-indigo-600 hover:from-[var(--accent-500)] hover:to-indigo-500 text-white text-base font-semibold py-2.5 rounded-lg transition-all flex items-center justify-center space-x-2 shadow-lg shadow-[rgb(var(--accent-rgb)/0.2)] disabled:opacity-60">
+                        <i x-show="authing" class="fa-solid fa-circle-notch fa-spin"></i>
+                        <span x-text="authing ? 'Sign-in ho raha hai…' : 'Sign in & Inbox kholo'"></span>
+                    </button>
+                </form>
+                <p class="text-center text-sm text-slate-500 mt-6">Real IMAP sign-in — aapka email server se seedha connect karega.</p>
+            </div>
+        </div>
+    </div>
+    </template>
+
+    <!-- ============ MAIN APP (visible after sign-in) ============ -->
+    <div x-show="loggedIn" x-cloak class="h-full flex flex-col">
+
+    <!-- TOP HEADER / TOOLBAR -->
+    <header :class="darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'" 
+            class="h-16 border-b flex items-center justify-between px-4 shrink-0 z-20 transition-colors">
+        <!-- Brand & Connection Status -->
+        <div class="flex items-center space-x-3 w-64">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--accent-600)] to-cyan-500 flex items-center justify-center shadow-lg shadow-[rgb(var(--accent-rgb)/0.2)]">
+                <i class="fa-solid me-0 fa-shield-halved text-white text-xl"></i>
+            </div>
+            <div>
+                <div class="flex items-center space-x-1.5">
+                    <span class="font-display font-bold text-base tracking-wide" :class="darkMode ? 'text-white' : 'text-slate-900'">Kavach Mail</span>
+                    <span class="text-xs px-1.5 py-0.5 rounded bg-[rgb(var(--accent-rgb)/0.2)] text-[var(--accent-500)] font-semibold border border-[rgb(var(--accent-rgb)/0.3)]">PRO</span>
+                </div>
+                <div class="flex items-center space-x-1.5 text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-500'">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span x-text="currentUser.domain || 'corporate.internal'"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Universal Search Bar & Quick Filters -->
+        <div class="flex-1 max-w-3xl px-4 flex items-center space-x-2">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                </div>
+                <input type="text" 
+                       x-model="searchQuery" 
+                       @input.debounce.500ms="searchMail(1)"
+                       @keyup.enter="searchMail(1)"
+                       placeholder="Universal search: Subject, sender, keyword, or body..."
+                       :class="darkMode ? 'bg-slate-950/80 border-slate-800 text-slate-200 placeholder-slate-500 focus:border-[var(--accent-500)]' : 'bg-slate-50 border-slate-300 text-slate-800 placeholder-slate-400 focus:border-[var(--accent-500)]'"
+                       class="w-full h-11 pl-11 pr-[7.5rem] border rounded-xl text-sm leading-none focus:outline-none focus:ring-1 focus:ring-[var(--accent-500)] transition-all shadow-inner">
+                
+                <div class="absolute inset-y-0 right-1.5 flex items-center space-x-1.5">
+                    <button x-show="searchQuery || isFilterActive()" @click="searchQuery=''; resetFilters()" 
+                            :class="darkMode ? 'text-slate-400 hover:text-slate-200 bg-slate-800' : 'text-slate-600 hover:text-slate-900 bg-slate-200'"
+                            class="text-xs px-2 py-1.5 rounded-md leading-none whitespace-nowrap">
+                        Clear
+                    </button>
+                    <button @click="showAdvancedSearch = !showAdvancedSearch" 
+                            :class="isFilterActive() ? 'text-[var(--accent-500)] bg-[rgb(var(--accent-rgb)/0.1)] border-[rgb(var(--accent-rgb)/0.3)]' : (darkMode ? 'text-slate-400 hover:text-slate-200 border-slate-700/60' : 'text-slate-600 hover:text-slate-900 border-slate-300')"
+                            class="px-2.5 py-1.5 text-xs border rounded-lg flex items-center space-x-1 leading-none whitespace-nowrap transition-colors">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span class="hidden sm:inline">Advanced</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Date Range Selector -->
+            <div class="relative hidden md:block">
+                <div :class="darkMode ? 'bg-slate-950/80 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-300 text-slate-700'"
+                     class="flex items-center h-11 border rounded-xl px-3 space-x-2 text-xs">
+                    <i class="fa-regular fa-calendar-days text-slate-400"></i>
+                    <input type="date" x-model="dateFrom" @change="searchMail(1)" title="From Date" class="bg-transparent focus:outline-none text-xs w-28 border-0 p-0">
+                    <span class="text-slate-400">-</span>
+                    <input type="date" x-model="dateTo" @change="searchMail(1)" title="To Date" class="bg-transparent focus:outline-none text-xs w-28 border-0 p-0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Switcher, Theme Toggle & User Profile -->
+        <div class="flex items-center space-x-2.5">
+            <!-- Theme Toggle Button -->
+            <button @click="toggleTheme()" 
+                    :title="darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+                    :class="darkMode ? 'bg-slate-800 text-amber-400 hover:bg-slate-700 border-slate-700' : 'bg-slate-100 text-indigo-600 hover:bg-slate-200 border-slate-300'"
+                    class="p-2 rounded-xl border flex items-center justify-center transition-all duration-200 shadow-sm"
+                    aria-label="Toggle Theme">
+                <i :class="darkMode ? 'fa-solid fa-sun text-base' : 'fa-solid fa-moon text-base'"></i>
+            </button>
+
+            <!-- Colour Theme Picker (10 accent themes, independent of dark/light) -->
+            <div class="relative" @click.outside="showThemePicker = false">
+                <button @click="showThemePicker = !showThemePicker" title="Choose colour theme"
+                        :class="darkMode ? 'bg-slate-800 hover:bg-slate-700 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 border-slate-300'"
+                        class="p-2 rounded-xl border flex items-center justify-center transition-all duration-200 shadow-sm"
+                        aria-label="Choose colour theme">
+                    <i class="fa-solid fa-palette text-base" :style="'color: var(--accent-500)'"></i>
+                </button>
+
+                <div x-show="showThemePicker"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     :class="darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xl'"
+                     class="absolute right-0 mt-2 w-64 border rounded-2xl shadow-2xl p-3 z-50"
+                     style="display:none;">
+                    <p class="text-xs font-bold uppercase tracking-wider px-1 pb-2" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">Colour theme</p>
+                    <div class="grid grid-cols-5 gap-2">
+                        <template x-for="t in themes" :key="t.id">
+                            <button @click="setTheme(t.id)" :title="t.name"
+                                    class="group flex flex-col items-center gap-1 p-1.5 rounded-xl transition"
+                                    :class="theme === t.id ? (darkMode ? 'bg-slate-800' : 'bg-slate-100') : ''">
+                                <span class="w-7 h-7 rounded-full border-2 flex items-center justify-center"
+                                      :style="'background-color:' + t.swatch + '; border-color:' + (theme === t.id ? t.swatch : 'transparent')">
+                                    <i x-show="theme === t.id" class="fa-solid fa-check text-white text-[10px]"></i>
+                                </span>
+                                <span class="text-[10px]" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="t.name"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <button @click="showLoginModal = true" title="Switch Corporate Account" 
+                    :class="darkMode ? 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700/60' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'"
+                    class="hidden sm:flex items-center space-x-2 px-3 py-1.5 text-sm border rounded-xl transition font-medium">
+                <i class="fa-solid fa-arrows-rotate" :style="'color: var(--accent-500)'"></i>
+                <span>Switch Account</span>
+            </button>
+
+            <!-- User Badge -->
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open" :class="darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'" class="flex items-center space-x-2 p-1 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-lg bg-[var(--accent-600)] text-white font-bold flex items-center justify-center text-sm shadow" x-text="currentUser.initials">
+                        AJ
+                    </div>
+                    <div class="hidden lg:block text-left pr-1">
+                        <div class="text-sm font-semibold leading-tight" :class="darkMode ? 'text-slate-200' : 'text-slate-800'" x-text="currentUser.name">Alex Johnson</div>
+                        <div class="text-xs" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="currentUser.email">alex.johnson@apexcorp.com</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs text-slate-400 hidden lg:inline"></i>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div x-show="open" @click.outside="open = false" 
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     :class="darkMode ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-white border-slate-200 text-slate-800 shadow-xl'"
+                     class="absolute right-0 mt-2 w-64 border rounded-2xl shadow-2xl py-2 z-50 text-sm">
+                    <div class="px-4 py-2.5 border-b" :class="darkMode ? 'border-slate-800' : 'border-slate-200'">
+                        <p class="font-bold" :class="darkMode ? 'text-slate-200' : 'text-slate-800'" x-text="currentUser.name">Alex Johnson</p>
+                        <p class="text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="currentUser.email">alex.johnson@apexcorp.com</p>
+                        <div class="mt-2 inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-medium text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                            Verified Corporate SSO Session
+                        </div>
+                    </div>
+                    <a href="#" @click.prevent="showToast('Mail Sync Status: 100% Up-to-date')" 
+                       :class="darkMode ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-slate-100 text-slate-700'"
+                       class="block px-4 py-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-rotate-right mr-2 text-slate-400"></i> Sync Mailbox</span>
+                        <span class="text-xs text-slate-400">Just now</span>
+                    </a>
+                    <a href="#" @click.prevent="toggleTheme(); open = false" 
+                       :class="darkMode ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-slate-100 text-slate-700'"
+                       class="block px-4 py-2 flex items-center justify-between">
+                        <span><i :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon text-indigo-500'" class="fa-solid mr-2"></i> Toggle Theme</span>
+                        <span class="text-xs capitalize font-semibold" x-text="darkMode ? 'Dark' : 'Light'"></span>
+                    </a>
+                    <a href="#" @click.prevent="showLoginModal = true; open = false" 
+                       :class="darkMode ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-slate-100 text-slate-700'"
+                       class="block px-4 py-2">
+                        <i class="fa-solid fa-right-to-bracket mr-2 text-slate-400"></i> Change Corporate / Gmail ID
+                    </a>
+                    <a href="#" @click.prevent="showToast('Security logs exported')" 
+                       :class="darkMode ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-slate-100 text-slate-700'"
+                       class="block px-4 py-2">
+                        <i class="fa-solid fa-vault mr-2 text-slate-400"></i> Security & Audit Log
+                    </a>
+                    <div class="border-t mt-1 pt-1" :class="darkMode ? 'border-slate-800' : 'border-slate-200'">
+                        <a href="#" @click.prevent="open = false; signOut()" 
+                           :class="darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'"
+                           class="block px-4 py-2 text-rose-500 font-medium">
+                            <i class="fa-solid fa-power-off mr-2"></i> Log Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTAINER -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside :class="darkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'"
+               class="w-60 border-r flex flex-col shrink-0 transition-colors">
+            <!-- Compose Button -->
+            <div class="p-3">
+                <button @click="showComposeModal = true" 
+                        class="w-full py-2.5 px-4 bg-gradient-to-r from-[var(--accent-600)] to-indigo-600 hover:from-[var(--accent-500)] hover:to-indigo-500 text-white rounded-xl font-semibold text-sm tracking-wide flex items-center justify-center space-x-2 shadow-lg shadow-[rgb(var(--accent-rgb)/0.2)] transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <i class="fa-solid fa-pen-to-square text-base"></i>
+                    <span>New Email</span>
+                </button>
+            </div>
+
+            <!-- Folder Navigation List -->
+            <nav class="flex-1 overflow-y-auto px-2 space-y-1">
+                <div class="text-xs font-bold uppercase px-3 pt-2 pb-1 tracking-wider" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">Mailboxes</div>
+
+                <template x-for="folder in folders" :key="folder.id">
+                    <button @click="selectFolder(folder.id)" 
+                            :class="currentFolder === folder.id ? 
+                                    (darkMode ? 'bg-[rgb(var(--accent-rgb)/0.15)] text-[var(--accent-400)] font-semibold border-l-2 border-[var(--accent-500)]' : 'bg-[var(--accent-50)] text-[var(--accent-600)] font-semibold border-l-2 border-[var(--accent-600)]') : 
+                                    (darkMode ? 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900')"
+                            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition">
+                        <div class="flex items-center space-x-3">
+                            <i :class="folder.icon" class="w-4 text-center text-base"></i>
+                            <span x-text="folder.name"></span>
+                        </div>
+                        <span x-show="getFolderCount(folder.id) > 0" 
+                              :class="currentFolder === folder.id ? 
+                                      (darkMode ? 'bg-[rgb(var(--accent-rgb)/0.2)] text-[var(--accent-400)] border border-[rgb(var(--accent-rgb)/0.3)]' : 'bg-[var(--accent-100)] text-[var(--accent-700)] border border-[var(--accent-200)]') : 
+                                      (darkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500')"
+                              class="px-2 py-0.5 text-xs rounded-full font-semibold"
+                              x-text="getFolderCount(folder.id)">
+                        </span>
+                    </button>
+                </template>
+
+                <template x-if="customLabels.length > 0">
+                <div>
+                    <div class="text-xs font-bold uppercase px-3 pt-4 pb-1 tracking-wider" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">Corporate Departments</div>
+                    <template x-for="dept in customLabels" :key="dept.id">
+                        <button @click="selectFolder(dept.id)" 
+                                :class="currentFolder === dept.id ? 
+                                        (darkMode ? 'bg-slate-800 text-slate-200 font-semibold' : 'bg-slate-100 text-slate-900 font-semibold') : 
+                                        (darkMode ? 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800')"
+                                class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-sm transition">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-2.5 h-2.5 rounded-full" :class="dept.color"></span>
+                                <span x-text="dept.name"></span>
+                            </div>
+                            <span x-text="getFolderCount(dept.id)" class="text-xs" :class="darkMode ? 'text-slate-500' : 'text-slate-400'"></span>
+                        </button>
+                    </template>
+                </div>
+                </template>
+            </nav>
+
+            <!-- Storage & Compliance Stats -->
+            <div :class="darkMode ? 'border-slate-800 bg-slate-950/40 text-slate-400' : 'border-slate-200 bg-slate-50 text-slate-600'" 
+                 class="p-3 border-t text-sm">
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Corporate Vault Storage</span>
+                    <span class="font-medium" :class="darkMode ? 'text-slate-300' : 'text-slate-700'">14.2 GB / 50 GB</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-gradient-to-r from-[var(--accent-500)] to-indigo-500 h-full rounded-full" style="width: 28.4%"></div>
+                </div>
+                <p class="mt-2 text-xs flex items-center" :class="darkMode ? 'text-slate-500' : 'text-slate-400'">
+                    <i class="fa-solid fa-lock text-emerald-500 mr-1.5"></i>
+                    256-Bit TLS End-to-End Encrypted
+                </p>
+            </div>
+        </aside>
+
+        <!-- MIDDLE PANE: EMAIL LIST VIEW -->
+        <section :class="darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'"
+                 class="w-full md:w-[420px] lg:w-[480px] border-r flex flex-col shrink-0 transition-colors">
+            
+            <!-- List Controls & Bulk Actions Toolbar -->
+            <div :class="darkMode ? 'border-slate-800 bg-slate-900/90' : 'border-slate-200 bg-slate-50'"
+                 class="p-3 border-b flex flex-col space-y-2">
+                <div class="flex items-center justify-between">
+                    <!-- Bulk Select Checkbox & Status -->
+                    <div class="flex items-center space-x-2">
+                        <label class="inline-flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" 
+                                   :checked="isAllSelected()" 
+                                   @change="toggleSelectAll($event.target.checked)"
+                                   class="w-4 h-4 rounded border-slate-400 text-[var(--accent-600)] focus:ring-[var(--accent-500)]">
+                            <span class="text-sm font-semibold" :class="darkMode ? 'text-slate-300' : 'text-slate-700'" x-text="selectedEmailIds.length > 0 ? selectedEmailIds.length + ' Selected' : 'Select All'"></span>
+                        </label>
+                    </div>
+
+                    <!-- Quick Folder Title -->
+                    <div class="text-sm font-bold capitalize" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="currentFolder"></div>
+                </div>
+
+                <!-- Action Button Options Bar -->
+                <div class="flex items-center space-x-1.5 pt-1 overflow-x-auto no-scrollbar">
+                    
+                    <!-- Download Mail Button -->
+                    <button @click="downloadSelectedMails(false)" 
+                            :disabled="selectedEmailIds.length === 0"
+                            :class="selectedEmailIds.length > 0 ? 
+                                    (darkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-sm') : 
+                                    (darkMode ? 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed')"
+                            class="px-2.5 py-1 text-sm border rounded-lg flex items-center space-x-1 whitespace-nowrap transition"
+                            title="Download selected emails (.eml format)">
+                        <i class="fa-solid fa-file-arrow-down text-[var(--accent-500)]"></i>
+                        <span>Download Mail</span>
+                    </button>
+
+                    <!-- Download Mail & Attachments Button -->
+                    <button @click="downloadSelectedMails(true)" 
+                            :disabled="selectedEmailIds.length === 0"
+                            :class="selectedEmailIds.length > 0 ? 
+                                    (darkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-sm') : 
+                                    (darkMode ? 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed')"
+                            class="px-2.5 py-1 text-sm border rounded-lg flex items-center space-x-1 whitespace-nowrap transition"
+                            title="Download selected emails along with zip attachments">
+                        <i class="fa-solid fa-box-archive text-amber-500"></i>
+                        <span>Mail & Attachment</span>
+                    </button>
+
+                    <!-- Mark Read/Unread -->
+                    <button @click="markSelectedReadStatus()" 
+                            :disabled="selectedEmailIds.length === 0"
+                            :class="selectedEmailIds.length > 0 ? 
+                                    (darkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-sm') : 
+                                    (darkMode ? 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed')"
+                            class="px-2.5 py-1 text-sm border rounded-lg flex items-center space-x-1 whitespace-nowrap transition">
+                        <i class="fa-regular fa-envelope-open text-emerald-500"></i>
+                        <span>Read</span>
+                    </button>
+
+                    <!-- Delete -->
+                    <button @click="deleteSelectedEmails()" 
+                            :disabled="selectedEmailIds.length === 0"
+                            :class="selectedEmailIds.length > 0 ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border-rose-500/30' : (darkMode ? 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed')"
+                            class="px-2 py-1 text-sm border rounded-lg flex items-center space-x-1 whitespace-nowrap transition">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Email List Scroll Area -->
+            <div class="flex-1 overflow-y-auto divide-y" :class="darkMode ? 'divide-slate-800/60' : 'divide-slate-200'">
+                <template x-for="email in filteredEmails" :key="email.id">
+                    <div @click="openEmail(email)" 
+                         :class="[
+                             selectedEmail && selectedEmail.id === email.id ? 
+                             (darkMode ? 'bg-[rgb(var(--accent-rgb)/0.25)] border-l-4 border-[var(--accent-500)]' : 'bg-[rgb(var(--accent-rgb)/0.08)] border-l-4 border-[var(--accent-600)]') : 
+                             (email.read ? (darkMode ? 'bg-slate-900/40 hover:bg-slate-800/40' : 'bg-white hover:bg-slate-50') : (darkMode ? 'bg-slate-800/20 hover:bg-slate-800/50' : 'bg-[rgb(var(--accent-rgb)/0.06)] hover:bg-slate-100')),
+                             'p-3 cursor-pointer transition relative group'
+                         ]">
+                        <div class="flex items-start space-x-3">
+                            <!-- Select Checkbox -->
+                            <div class="pt-0.5" @click.stop>
+                                <input type="checkbox" 
+                                       :value="email.id" 
+                                       x-model="selectedEmailIds"
+                                       class="w-4 h-4 rounded border-slate-400 text-[var(--accent-600)] focus:ring-[var(--accent-500)]">
+                            </div>
+
+                            <!-- Star Toggle -->
+                            <button @click.stop="toggleStar(email)" class="pt-0.5 text-slate-400 hover:text-amber-400 transition">
+                                <i :class="email.starred ? 'fa-solid fa-star text-amber-400' : 'fa-regular fa-star'"></i>
+                            </button>
+
+                            <!-- Email Summary Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span :class="email.read ? (darkMode ? 'font-medium text-slate-300' : 'font-medium text-slate-700') : (darkMode ? 'font-bold text-white' : 'font-bold text-slate-900')" 
+                                          class="text-sm truncate pr-2" 
+                                          x-text="email.fromName">
+                                    </span>
+                                    <span class="text-xs text-slate-400 whitespace-nowrap" x-text="email.formattedDate"></span>
+                                </div>
+
+                                <h4 :class="email.read ? (darkMode ? 'text-slate-300 font-normal' : 'text-slate-700 font-normal') : (darkMode ? 'text-slate-100 font-semibold' : 'text-slate-900 font-semibold')" 
+                                    class="text-sm truncate mb-1" 
+                                    x-text="email.subject">
+                                </h4>
+
+                                <p class="text-sm line-clamp-2 leading-tight" :class="darkMode ? 'text-slate-400' : 'text-slate-500'" x-text="email.snippet"></p>
+
+                                <!-- Attachments & Tags Indicator -->
+                                <div class="mt-2 flex items-center justify-between text-xs">
+                                    <div class="flex items-center space-x-2">
+                                        <template x-if="email.hasAttachment">
+                                            <span :class="darkMode ? 'bg-slate-800 border-slate-700/80 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'"
+                                                  class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded border">
+                                                <i class="fa-solid fa-paperclip text-slate-400"></i>
+                                                <span x-text="email.attachments.length + ' file(s)'"></span>
+                                            </span>
+                                        </template>
+
+                                        <template x-if="email.tag">
+                                            <span class="px-1.5 py-0.5 rounded bg-[rgb(var(--accent-rgb)/0.1)] text-[var(--accent-500)] border border-[rgb(var(--accent-rgb)/0.2)] font-medium"
+                                                  x-text="email.tag">
+                                            </span>
+                                        </template>
+                                    </div>
+
+                                    <span x-show="!email.read" class="w-2 h-2 rounded-full bg-[var(--accent-500)]"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Loading State -->
+                <div x-show="loadingEmails" class="p-8 text-center text-slate-400">
+                    <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-3"></i>
+                    <p class="text-sm">Fetching mail from server…</p>
+                </div>
+
+                <!-- Empty State -->
+                <div x-show="!loadingEmails && filteredEmails.length === 0" class="p-8 text-center text-slate-400">
+                    <i class="fa-regular fa-folder-open text-4xl mb-3 text-slate-400"></i>
+                    <p class="text-base font-medium">No emails found</p>
+                    <p class="text-sm text-slate-400 mt-1">Try resetting search filters or checking another folder.</p>
+                    <button @click="resetFilters()" :class="darkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'" class="mt-3 px-3 py-1 text-sm rounded-lg transition">
+                        Reset All Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pagination Footer -->
+            <div x-show="totalResults > pageSize" 
+                 :class="darkMode ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'"
+                 class="p-2.5 border-t flex items-center justify-between text-xs shrink-0">
+                <button @click="searchMail(currentPage - 1)" :disabled="currentPage <= 1"
+                        :class="currentPage <= 1 ? 'opacity-40 cursor-not-allowed' : 'hover:underline'">
+                    <i class="fa-solid fa-chevron-left mr-1"></i>Prev
+                </button>
+                <span x-text="`Page ${currentPage} of ${Math.max(1, Math.ceil(totalResults / pageSize))} · ${totalResults} total`"></span>
+                <button @click="searchMail(currentPage + 1)" :disabled="currentPage >= Math.ceil(totalResults / pageSize)"
+                        :class="currentPage >= Math.ceil(totalResults / pageSize) ? 'opacity-40 cursor-not-allowed' : 'hover:underline'">
+                    Next<i class="fa-solid fa-chevron-right ml-1"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- RIGHT PANE: EMAIL DETAIL READER -->
+        <main :class="darkMode ? 'bg-slate-950' : 'bg-slate-50'" class="flex-1 flex flex-col min-w-0 overflow-hidden transition-colors">
+            <template x-if="selectedEmail">
+                <div class="h-full flex flex-col overflow-hidden">
+                    
+                    <!-- Detail Header Toolbar -->
+                    <div :class="darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'" 
+                         class="p-4 border-b flex items-center justify-between shrink-0">
+                        <div class="flex items-center space-x-2">
+                            <button @click="downloadSingleMail(selectedEmail, false)" 
+                                    :class="darkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'"
+                                    class="px-3 py-1.5 border rounded-lg text-sm font-medium flex items-center space-x-1.5 transition">
+                                <i class="fa-solid fa-download text-[var(--accent-500)]"></i>
+                                <span>Download (.EML)</span>
+                            </button>
+
+                            <button @click="downloadSingleMail(selectedEmail, true)" 
+                                    x-show="selectedEmail.hasAttachment"
+                                    :class="darkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'"
+                                    class="px-3 py-1.5 border rounded-lg text-sm font-medium flex items-center space-x-1.5 transition">
+                                <i class="fa-solid fa-file-zipper text-amber-500"></i>
+                                <span>Download Mail & Attachments</span>
+                            </button>
+
+                            <button @click="printEmail(selectedEmail)" 
+                                    :class="darkMode ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'"
+                                    class="p-1.5 rounded-lg text-sm" title="Print Email">
+                                <i class="fa-solid fa-print"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center space-x-2 text-sm">
+                            <button @click="replyEmail()" class="px-3 py-1.5 bg-[var(--accent-600)] hover:bg-[var(--accent-500)] text-white font-medium rounded-lg flex items-center space-x-1 transition shadow">
+                                <i class="fa-solid fa-reply"></i>
+                                <span>Reply</span>
+                            </button>
+                            <button @click="deleteSingleEmail(selectedEmail.id)" 
+                                    :class="darkMode ? 'text-slate-400 hover:text-rose-400 hover:bg-slate-800' : 'text-slate-600 hover:text-rose-600 hover:bg-slate-100'"
+                                    class="p-1.5 rounded-lg text-sm" title="Delete">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Email Scrollable Header & Message Content -->
+                    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                        <!-- Subject Title Header -->
+                        <div class="border-b pb-4" :class="darkMode ? 'border-slate-800/80' : 'border-slate-200'">
+                            <div class="flex items-center justify-between gap-4">
+                                <h2 class="font-display text-xl font-bold leading-tight" :class="darkMode ? 'text-white' : 'text-slate-900'" x-text="selectedEmail.subject"></h2>
+                                <span :class="darkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'" class="px-2.5 py-1 rounded-md text-sm border font-mono" x-text="'ID: ' + selectedEmail.id"></span>
+                            </div>
+                            <div class="mt-2 flex items-center space-x-2 text-sm text-slate-400">
+                                <span>Folder: <strong :class="darkMode ? 'text-slate-200' : 'text-slate-800'" class="capitalize" x-text="selectedEmail.folder"></strong></span>
+                                <span>•</span>
+                                <span>Security Check: <span class="text-emerald-500 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>DKIM & SPF Passed</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Sender & Recipient Metadata Card -->
+                        <div :class="darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-sm'" 
+                             class="border rounded-2xl p-4 flex items-start justify-between">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold flex items-center justify-center text-base shadow">
+                                    <span x-text="getInitials(selectedEmail.fromName)"></span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-bold text-base" :class="darkMode ? 'text-slate-100' : 'text-slate-900'" x-text="selectedEmail.fromName"></span>
+                                        <span class="text-sm text-slate-400 font-mono" x-text="'<' + selectedEmail.fromEmail + '>'"></span>
+                                    </div>
+                                    <div class="text-sm text-slate-400 mt-1">
+                                        To: <span :class="darkMode ? 'text-slate-300' : 'text-slate-700'" x-text="selectedEmail.toEmail"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right text-sm text-slate-400">
+                                <p x-text="selectedEmail.formattedDate"></p>
+                                <p class="text-xs text-slate-400 mt-0.5" x-text="selectedEmail.fullTimestamp"></p>
+                            </div>
+                        </div>
+
+                        <!-- Attachments Box (If Any) -->
+                        <template x-if="selectedEmail.hasAttachment">
+                            <div :class="darkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'" class="border rounded-2xl p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-2 text-sm font-semibold" :class="darkMode ? 'text-slate-200' : 'text-slate-800'">
+                                        <i class="fa-solid fa-paperclip text-[var(--accent-500)]"></i>
+                                        <span>Attachments (<span x-text="selectedEmail.attachments.length"></span>)</span>
+                                    </div>
+                                    <button @click="downloadSingleMail(selectedEmail, true)" class="text-sm text-[var(--accent-500)] hover:underline">
+                                        Download All Files (.zip)
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <template x-for="file in selectedEmail.attachments" :key="file.name">
+                                        <div :class="darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'" class="flex items-center justify-between p-2.5 border rounded-xl hover:border-slate-400 transition">
+                                            <div class="flex items-center space-x-3 min-w-0">
+                                                <div :class="darkMode ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-700 shadow-sm'" class="w-8 h-8 rounded-lg flex items-center justify-center text-base">
+                                                    <i :class="getFileIcon(file.type)"></i>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-sm font-medium truncate" :class="darkMode ? 'text-slate-200' : 'text-slate-800'" x-text="file.name"></p>
+                                                    <p class="text-xs text-slate-400" x-text="file.size"></p>
+                                                </div>
+                                            </div>
+                                            <button @click="downloadSingleAttachment(selectedEmail, file.name)" class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm" title="Download File">
+                                                <i class="fa-solid fa-download"></i>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Email Main HTML Body Content -->
+                        <div class="prose max-w-none text-base leading-relaxed space-y-4 pt-2" :class="darkMode ? 'text-slate-300' : 'text-slate-700'">
+                            <div x-html="selectedEmail.body"></div>
+                        </div>
+
+                        <!-- Email Footer Signature Simulation -->
+                        <div class="pt-8 border-t text-sm text-slate-400 space-y-1" :class="darkMode ? 'border-slate-800' : 'border-slate-200'">
+                            <p class="font-semibold" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">Enterprise Security Notice:</p>
+                            <p>This email originated from outside or within the verified corporate domain network. Please exercise caution when clicking links or opening untrusted attachments.</p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Blank View when no email selected -->
+            <template x-if="!selectedEmail">
+                <div class="h-full flex flex-col items-center justify-center p-8 text-center text-slate-400">
+                    <div :class="darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'" class="w-16 h-16 rounded-2xl border flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-regular fa-envelope"></i>
+                    </div>
+                    <h3 class="text-base font-semibold" :class="darkMode ? 'text-slate-300' : 'text-slate-700'">No Email Selected</h3>
+                    <p class="text-sm text-slate-400 max-w-sm mt-1">Select an email from the left sidebar list to inspect headers, content, and download mail or attachments.</p>
+                </div>
+            </template>
+        </main>
+    </div>
+
+    <!-- ADVANCED SEARCH MODAL / DRAWER -->
+    <div x-show="showAdvancedSearch" 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-20 px-4"
+         style="display: none;">
+        
+        <div @click.outside="showAdvancedSearch = false" class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <h3 class="font-bold text-white text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-[var(--accent-500)]"></i>
+                    <span>Advanced Corporate Filter</span>
+                </h3>
+                <button @click="showAdvancedSearch = false" class="text-slate-400 hover:text-slate-200 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-sm">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 mb-1 font-medium">From (Sender)</label>
+                        <input type="text" x-model="filterFrom" placeholder="e.g. audit@company.com" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-[var(--accent-500)]">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1 font-medium">To (Recipient)</label>
+                        <input type="text" x-model="filterTo" placeholder="e.g. me@apexcorp.com" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-[var(--accent-500)]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-400 mb-1 font-medium">Subject Contains</label>
+                    <input type="text" x-model="filterSubject" placeholder="e.g. Q3 Financials, Contract, Compliance" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-[var(--accent-500)]">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 mb-1 font-medium">Start Date</label>
+                        <input type="date" x-model="dateFrom" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-[var(--accent-500)]">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1 font-medium">End Date</label>
+                        <input type="date" x-model="dateTo" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-[var(--accent-500)]">
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 pt-2">
+                    <input type="checkbox" id="hasAtt" x-model="filterHasAttachment" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-[var(--accent-600)]">
+                    <label for="hasAtt" class="text-slate-300 font-medium cursor-pointer">Must contain file attachments</label>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-950/50 flex justify-between items-center">
+                <button @click="resetFilters()" class="text-sm text-slate-400 hover:text-slate-200">Reset Filters</button>
+                <div class="space-x-2">
+                    <button @click="showAdvancedSearch = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-xl font-medium">Close</button>
+                    <button @click="showAdvancedSearch = false; searchMail(1)" class="px-4 py-2 bg-[var(--accent-600)] hover:bg-[var(--accent-500)] text-white text-sm rounded-xl font-medium">Apply Search Filter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT LOGIN / SWITCHER SIMULATOR MODAL -->
+    <div x-show="showLoginModal" 
+         class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+         style="display: none;">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-[rgb(var(--accent-rgb)/0.2)] text-[var(--accent-400)] border border-[rgb(var(--accent-rgb)/0.3)] flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-building-user"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">Corporate Identity Access</h3>
+                <p class="text-sm text-slate-400 mt-1">Sign in directly with your Gmail OAuth or Corporate Domain ID</p>
+            </div>
+
+            <form @submit.prevent="signIn()" class="space-y-4 text-sm">
+                <div>
+                    <label class="block text-slate-400 mb-1 font-semibold">Corporate / Gmail Email Address</label>
+                    <div class="relative">
+                        <i class="fa-regular fa-envelope absolute left-3 top-3 text-slate-500"></i>
+                        <input type="email" required x-model="loginEmailInput" placeholder="alex.johnson@apexcorp.com" 
+                               class="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[var(--accent-500)]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-400 mb-1 font-semibold">Password (IMAP / App Password)</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-key absolute left-3 top-3 text-slate-500"></i>
+                        <input type="password" required x-model="loginPasswordInput"
+                               class="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-[var(--accent-500)]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-400 mb-1 font-semibold">IMAP server (optional)</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-server absolute left-3 top-3 text-slate-500"></i>
+                        <input type="text" x-model="loginImapHost" placeholder="auto-detected if blank"
+                               class="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[var(--accent-500)]">
+                    </div>
+                </div>
+
+                <p x-show="loginError" x-text="loginError" class="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2"></p>
+
+                <div class="pt-2">
+                    <button type="submit" :disabled="authing" class="w-full py-3 bg-gradient-to-r from-[var(--accent-600)] to-indigo-600 hover:from-[var(--accent-500)] hover:to-indigo-500 text-white font-bold text-sm rounded-xl shadow-lg transition disabled:opacity-60">
+                        <span x-text="authing ? 'Connecting…' : 'Connect & Sync Mailbox'"></span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 pt-4 border-t border-slate-800 text-center">
+                <p class="text-sm text-slate-500">Supported Providers: Google Workspace, Office 365, cPanel Mail, Zimbra Enterprise.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPOSE MAIL MODAL -->
+    <div x-show="showComposeModal" 
+         class="fixed bottom-0 right-4 lg:right-10 z-40 w-full max-w-xl bg-slate-900 border border-slate-800 rounded-t-2xl shadow-2xl overflow-hidden"
+         style="display: none;">
+        <div class="bg-slate-800 px-4 py-3 flex items-center justify-between text-sm">
+            <span class="font-bold text-white flex items-center space-x-2">
+                <i class="fa-solid fa-pen-to-square text-[var(--accent-400)]"></i>
+                <span>New Message</span>
+            </span>
+            <button @click="showComposeModal = false" class="text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form @submit.prevent="sendEmail()" class="p-4 space-y-3 text-sm">
+            <div>
+                <input type="email" placeholder="To: recipient@company.com" required x-model="composeTo" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-[var(--accent-500)]">
+            </div>
+            <div>
+                <input type="text" placeholder="Subject" required x-model="composeSubject" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-[var(--accent-500)]">
+            </div>
+            <div>
+                <textarea rows="6" placeholder="Write your corporate message here..." required x-model="composeBody" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-[var(--accent-500)] resize-none"></textarea>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                <div class="flex items-center space-x-2 text-slate-400">
+                    <button type="button" @click="showToast('Attachment dialog opened')" class="p-2 hover:bg-slate-800 rounded-lg hover:text-slate-200"><i class="fa-solid fa-paperclip"></i></button>
+                    <button type="button" @click="showToast('Signature added')" class="p-2 hover:bg-slate-800 rounded-lg hover:text-slate-200"><i class="fa-solid fa-signature"></i></button>
+                    <button type="button" @click="showToast('Security priority set to HIGH')" class="p-2 hover:bg-slate-800 rounded-lg hover:text-slate-200"><i class="fa-solid fa-shield-cat"></i></button>
+                </div>
+                <div class="space-x-2">
+                    <button type="button" @click="showComposeModal = false" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium">Discard</button>
+                    <button type="submit" class="px-4 py-1.5 bg-[var(--accent-600)] hover:bg-[var(--accent-500)] text-white font-bold rounded-xl shadow">Send Email</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div x-show="toast.visible" 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-2"
+         class="fixed bottom-5 left-5 z-50 bg-slate-800 border border-slate-700 text-slate-200 px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm"
+         style="display: none;">
+        <i class="fa-solid fa-circle-info text-[var(--accent-400)] text-base"></i>
+        <span x-text="toast.message"></span>
+    </div>
+
+    </div> <!-- /end loggedIn app wrapper -->
+
+    <!-- JAVASCRIPT / ALPINE.JS STATE CONTROLLER -->
+    <script>
+        function emailApp() {
+            return {
+                // User / session state (real backend session, no mock user)
+                currentUser: { name: '', email: '', domain: '', initials: '' },
+                token: null,
+
+                // Login Gate state
+                loggedIn: false,
+                gateLoginType: 'gmail',
+                authing: false,
+                loginPasswordInput: '',
+                loginImapHost: '',
+                loginError: '',
+
+                // Pagination / loading state for real server search
+                pageSize: 25,
+                currentPage: 1,
+                totalResults: 0,
+                loadingEmails: false,
+
+                // Theme Toggle State (background/text — dark vs light)
+                darkMode: true,
+
+                // Accent Colour Theme (independent of dark/light mode)
+                theme: 'ocean',
+                showThemePicker: false,
+                themes: [
+                    { id: 'ocean',    name: 'Ocean',    swatch: '#3b82f6' },
+                    { id: 'emerald',  name: 'Emerald',  swatch: '#10b981' },
+                    { id: 'violet',   name: 'Violet',   swatch: '#8b5cf6' },
+                    { id: 'amber',    name: 'Amber',    swatch: '#f59e0b' },
+                    { id: 'rose',     name: 'Rose',     swatch: '#f43f5e' },
+                    { id: 'indigo',   name: 'Indigo',   swatch: '#6366f1' },
+                    { id: 'teal',     name: 'Teal',     swatch: '#14b8a6' },
+                    { id: 'crimson',  name: 'Crimson',  swatch: '#ef4444' },
+                    { id: 'graphite', name: 'Graphite', swatch: '#64748b' },
+                    { id: 'cyan',     name: 'Cyan',     swatch: '#06b6d4' }
+                ],
+                setTheme(id) {
+                    this.theme = id;
+                    localStorage.setItem('mail_theme_color', id);
+                    this.showThemePicker = false;
+                    const t = this.themes.find(x => x.id === id);
+                    this.showToast('Theme switched to ' + (t ? t.name : id));
+                },
+
+                // UI Visibility state
+                showLoginModal: false,
+                showComposeModal: false,
+                showAdvancedSearch: false,
+                loginEmailInput: 'alex.johnson@apexcorp.com',
+
+                // Toast state
+                toast: { visible: false, message: '' },
+
+                // Filter & Search states
+                currentFolder: 'inbox',
+                searchQuery: '',
+                filterFrom: '',
+                filterTo: '',
+                filterSubject: '',
+                filterHasAttachment: false,
+                dateFrom: '',
+                dateTo: '',
+
+                // Selected Emails Tracker
+                selectedEmailIds: [],
+                selectedEmail: null,
+
+                // Compose inputs
+                composeTo: '',
+                composeSubject: '',
+                composeBody: '',
+
+                // Navigation Folders — populated from the real IMAP account via /api/folders
+                folders: [],
+
+                // Custom Corporate Tags — not backed by the backend yet, kept empty
+                customLabels: [],
+
+                // Real emails for the current folder/page, loaded from /api/search
+                emails: [],
+
+                // Init Application — restores a saved session (if any) and reconnects
+                async initApp() {
+                    const savedTheme = localStorage.getItem('mail_theme');
+                    if (savedTheme) {
+                        this.darkMode = savedTheme === 'dark';
+                    }
+                    const savedColor = localStorage.getItem('mail_theme_color');
+                    if (savedColor) {
+                        this.theme = savedColor;
+                    }
+
+                    const savedToken = localStorage.getItem('kavach_token');
+                    const savedEmail = localStorage.getItem('kavach_email');
+                    if (!savedToken) return;
+
+                    this.token = savedToken;
+                    try {
+                        const res = await this.apiFetch('/api/folders');
+                        if (!res.ok) { this.clearSession(); return; }
+                        const data = await res.json();
+                        this.folders = data.map(f => this.mapFolder(f));
+                        this.currentFolder = this.folders.length ? this.folders[0].id : 'INBOX';
+                        this.currentUser = this.userFromEmail(savedEmail || '');
+                        this.loggedIn = true;
+                        await this.searchMail(1);
+                    } catch (e) {
+                        this.clearSession();
+                    }
+                },
+
+                // ---- Real API helpers ----
+
+                async apiFetch(path, options = {}) {
+                    const headers = Object.assign({}, options.headers || {}, this.token ? { Authorization: `Bearer ${this.token}` } : {});
+                    const res = await fetch(path, Object.assign({}, options, { headers }));
+                    if (res.status === 401) {
+                        this.showToast('Session expired — please sign in again.');
+                        this.clearSession();
+                    }
+                    return res;
+                },
+
+                clearSession() {
+                    this.token = null;
+                    localStorage.removeItem('kavach_token');
+                    localStorage.removeItem('kavach_email');
+                    this.loggedIn = false;
+                },
+
+                mapFolder(f) {
+                    return { id: f.name, name: f.display_name, icon: this.folderIcon(f.name), unread: f.unread, total: f.total };
+                },
+
+                folderIcon(name) {
+                    const n = (name || '').toLowerCase();
+                    if (n.includes('inbox')) return 'fa-solid fa-inbox';
+                    if (n.includes('sent')) return 'fa-regular fa-paper-plane';
+                    if (n.includes('draft')) return 'fa-regular fa-file';
+                    if (n.includes('trash') || n.includes('delet')) return 'fa-regular fa-trash-can';
+                    if (n.includes('spam') || n.includes('junk')) return 'fa-solid fa-triangle-exclamation';
+                    if (n.includes('archive')) return 'fa-solid fa-box-archive';
+                    return 'fa-regular fa-folder';
+                },
+
+                async loadFolders() {
+                    try {
+                        const res = await this.apiFetch('/api/folders');
+                        if (!res.ok) return;
+                        const data = await res.json();
+                        this.folders = data.map(f => this.mapFolder(f));
+                    } catch (e) { /* non-fatal */ }
+                },
+
+                userFromEmail(email) {
+                    const namePart = (email.split('@')[0] || '').replace(/[._]/g, ' ').trim();
+                    const domain = email.split('@')[1] || '';
+                    const name = namePart ? namePart.replace(/\b\w/g, c => c.toUpperCase()) : 'Mailbox User';
+                    return { name, email, domain, initials: name.substring(0, 2).toUpperCase() };
+                },
+
+                formatDate(iso) {
+                    if (!iso) return { formattedDate: '', dateISO: '', fullTimestamp: '' };
+                    const dt = new Date(iso);
+                    if (isNaN(dt.getTime())) return { formattedDate: '', dateISO: '', fullTimestamp: '' };
+                    return {
+                        formattedDate: dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+                        dateISO: iso.slice(0, 10),
+                        fullTimestamp: dt.toLocaleString()
+                    };
+                },
+
+                formatBytes(n) {
+                    if (!n) return '0 B';
+                    const units = ['B', 'KB', 'MB', 'GB'];
+                    let i = 0, val = n;
+                    while (val >= 1024 && i < units.length - 1) { val /= 1024; i++; }
+                    return (i === 0 ? val.toFixed(0) : val.toFixed(1)) + ' ' + units[i];
+                },
+
+                extType(name) {
+                    const ext = ((name || '').split('.').pop() || '').toLowerCase();
+                    if (ext === 'pdf') return 'pdf';
+                    if (['xls', 'xlsx', 'csv'].includes(ext)) return 'xls';
+                    if (['doc', 'docx'].includes(ext)) return 'doc';
+                    return 'file';
+                },
+
+                escapeHtml(str) {
+                    const div = document.createElement('div');
+                    div.textContent = str || '';
+                    return div.innerHTML;
+                },
+
+                mapSummary(r) {
+                    const dt = this.formatDate(r.date_iso);
+                    return {
+                        id: r.uid, uid: r.uid, folder: r.folder,
+                        fromName: r.from_name || r.from_email, fromEmail: r.from_email, toEmail: r.to_email,
+                        subject: r.subject || '(no subject)', snippet: r.snippet || '',
+                        body: '', formattedDate: dt.formattedDate, dateISO: dt.dateISO, fullTimestamp: dt.fullTimestamp,
+                        read: r.read, starred: false, tag: null,
+                        hasAttachment: r.has_attachment,
+                        attachments: (r.attachments || []).map(a => ({ name: a.filename, size: this.formatBytes(a.size_bytes), type: this.extType(a.filename) }))
+                    };
+                },
+
+                mapDetail(d) {
+                    const dt = this.formatDate(d.date_iso);
+                    const bodyHtml = d.body_html || (d.body_text
+                        ? `<pre style="white-space:pre-wrap;font-family:inherit;">${this.escapeHtml(d.body_text)}</pre>`
+                        : '<p class="text-slate-400">(No readable body content)</p>');
+                    return {
+                        id: d.uid, uid: d.uid, folder: d.folder,
+                        fromName: d.from_name || d.from_email, fromEmail: d.from_email, toEmail: d.to_email,
+                        subject: d.subject || '(no subject)', snippet: '',
+                        body: bodyHtml, formattedDate: dt.formattedDate, dateISO: dt.dateISO, fullTimestamp: dt.fullTimestamp,
+                        read: true, starred: false, tag: null,
+                        hasAttachment: d.has_attachment,
+                        attachments: (d.attachments || []).map(a => ({ name: a.filename, size: this.formatBytes(a.size_bytes), type: this.extType(a.filename) }))
+                    };
+                },
+
+                // Real IMAP sign-in
+                async signIn() {
+                    if (!this.loginEmailInput || !this.loginPasswordInput) {
+                        this.loginError = 'Email and password dono chahiye.';
+                        return;
+                    }
+                    this.authing = true;
+                    this.loginError = '';
+                    try {
+                        const res = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email: this.loginEmailInput,
+                                password: this.loginPasswordInput,
+                                imap_host: this.loginImapHost ? this.loginImapHost.trim() : null,
+                                imap_port: 993
+                            })
+                        });
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            throw new Error(data.detail || 'Sign-in fail hua. Email, password aur IMAP settings check karein.');
+                        }
+
+                        this.token = data.access_token;
+                        localStorage.setItem('kavach_token', this.token);
+                        localStorage.setItem('kavach_email', data.email);
+                        this.currentUser = this.userFromEmail(data.email);
+
+                        await this.loadFolders();
+                        if (this.folders.length) this.currentFolder = this.folders[0].id;
+
+                        this.loggedIn = true;
+                        this.showLoginModal = false;
+                        this.loginPasswordInput = '';
+                        await this.searchMail(1);
+                        this.showToast(`Welcome, ${this.currentUser.name}! Inbox synced.`);
+                    } catch (e) {
+                        this.loginError = e.message || 'Sign-in failed.';
+                        this.showToast(this.loginError);
+                    } finally {
+                        this.authing = false;
+                    }
+                },
+
+                // Toggle Theme
+                toggleTheme() {
+                    this.darkMode = !this.darkMode;
+                    localStorage.setItem('mail_theme', this.darkMode ? 'dark' : 'light');
+                    this.showToast(this.darkMode ? 'Dark Mode Activated' : 'Light Mode Activated');
+                },
+
+                // The list is already filtered/searched server-side by /api/search —
+                // this just exposes the current page's results under the name the
+                // template already uses everywhere.
+                get filteredEmails() {
+                    return this.emails;
+                },
+
+                // Real server-backed search across folder + universal query + advanced filters
+                async searchMail(page = 1) {
+                    if (!this.loggedIn || !this.currentFolder) return;
+                    if (page < 1) page = 1;
+                    this.loadingEmails = true;
+                    try {
+                        const body = {
+                            folder: this.currentFolder,
+                            query: this.searchQuery || null,
+                            from_addr: this.filterFrom || null,
+                            to_addr: this.filterTo || null,
+                            subject: this.filterSubject || null,
+                            has_attachment: this.filterHasAttachment ? true : null,
+                            date_from: this.dateFrom || null,
+                            date_to: this.dateTo || null,
+                            page: page,
+                            page_size: this.pageSize
+                        };
+                        const res = await this.apiFetch('/api/search', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(body)
+                        });
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.detail || 'Search failed');
+                        }
+                        const data = await res.json();
+                        this.emails = data.results.map(r => this.mapSummary(r));
+                        this.totalResults = data.total;
+                        this.currentPage = data.page;
+                        this.selectedEmailIds = [];
+                        this.selectedEmail = this.emails.length > 0 ? this.emails[0] : null;
+                        if (this.selectedEmail) this.openEmail(this.selectedEmail);
+                    } catch (e) {
+                        this.emails = [];
+                        this.selectedEmail = null;
+                        this.showToast(e.message || 'Could not load this folder.');
+                    } finally {
+                        this.loadingEmails = false;
+                    }
+                },
+
+                // Select folder — switches folder and re-runs the real search
+                selectFolder(folderId) {
+                    this.currentFolder = folderId;
+                    this.searchMail(1);
+                },
+
+                // Count helper — reads real unread/total counts from /api/folders
+                getFolderCount(folderId) {
+                    const f = this.folders.find(x => x.id === folderId);
+                    return f ? f.total : 0;
+                },
+
+                // Open & read email — fetches the full message body/attachments for real
+                async openEmail(email) {
+                    this.selectedEmail = email;
+                    try {
+                        const res = await this.apiFetch(`/api/email/${encodeURIComponent(email.folder)}/${encodeURIComponent(email.uid)}`);
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.detail || 'Could not load this email');
+                        }
+                        const d = await res.json();
+                        const mapped = this.mapDetail(d);
+                        if (this.selectedEmail && this.selectedEmail.uid === email.uid) {
+                            this.selectedEmail = mapped;
+                        }
+                        const idx = this.emails.findIndex(e => e.uid === email.uid);
+                        if (idx !== -1) this.emails[idx].read = true;
+                    } catch (e) {
+                        this.showToast(e.message || 'Could not load this email');
+                    }
+                },
+
+                // Multi-select actions
+                isAllSelected() {
+                    const list = this.filteredEmails;
+                    return list.length > 0 && this.selectedEmailIds.length === list.length;
+                },
+
+                toggleSelectAll(checked) {
+                    if (checked) {
+                        this.selectedEmailIds = this.filteredEmails.map(e => e.id);
+                    } else {
+                        this.selectedEmailIds = [];
+                    }
+                },
+
+                toggleStar(email) {
+                    email.starred = !email.starred;
+                    this.showToast(email.starred ? 'Marked as Starred' : 'Removed from Starred');
+                },
+
+                // ---- Real download engine — talks to /api/download(/estimate) which
+                // streams a real zip (or, for large exports, uploads to Google Drive) ----
+
+                triggerBlobDownload(blob, filename) {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                },
+
+                async runZipDownload(items, archiveName) {
+                    if (!items.length) return;
+                    try {
+                        const estRes = await this.apiFetch('/api/download/estimate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ items, archive_name: archiveName })
+                        });
+                        if (estRes.ok) {
+                            const est = await estRes.json();
+                            if (est.exceeds_limit) {
+                                this.showToast(`Selection is too large (~${(est.total_bytes / (1024 ** 3)).toFixed(1)} GB). Select fewer items.`);
+                                return;
+                            }
+                        }
+
+                        this.showToast('Preparing your download…');
+                        const res = await this.apiFetch('/api/download', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ items, mode: 'auto', archive_name: archiveName })
+                        });
+
+                        if (!res.ok) {
+                            if (res.status === 428) {
+                                this.showToast('This selection is large — connect Google Drive from the account menu first.');
+                                return;
+                            }
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.detail || 'Download failed');
+                        }
+
+                        const contentType = res.headers.get('content-type') || '';
+                        if (contentType.includes('application/zip')) {
+                            const blob = await res.blob();
+                            this.triggerBlobDownload(blob, `${archiveName}.zip`);
+                            this.showToast('Download complete');
+                        } else {
+                            const data = await res.json();
+                            this.showToast(`Large export uploaded to Google Drive: ${data.file_name}`);
+                            if (data.download_url) window.open(data.download_url, '_blank');
+                        }
+                    } catch (e) {
+                        this.showToast(e.message || 'Download failed');
+                    }
+                },
+
+                // Bulk download for the selected checkboxes — .eml + any attachments,
+                // streamed as a real zip by the backend
+                downloadSelectedMails(includeAttachments) {
+                    if (this.selectedEmailIds.length === 0) return;
+                    const items = this.selectedEmailIds.map(uid => {
+                        const e = this.emails.find(x => x.uid === uid);
+                        return { uid, folder: e ? e.folder : this.currentFolder, part_ids: null };
+                    });
+                    this.runZipDownload(items, `kavach-mail-export-${Date.now()}`);
+                },
+
+                // Single email download (from the detail pane)
+                downloadSingleMail(email, includeAttachments) {
+                    const items = [{ uid: email.uid, folder: email.folder, part_ids: null }];
+                    const safeName = (email.subject || email.uid).replace(/[^a-z0-9]/gi, '_').slice(0, 60) || email.uid;
+                    this.runZipDownload(items, `${email.uid}_${safeName}`);
+                },
+
+                // Single attachment — streamed straight from the mailbox
+                async downloadSingleAttachment(email, fileName) {
+                    if (!email) return;
+                    try {
+                        const res = await this.apiFetch(`/api/email/${encodeURIComponent(email.folder)}/${encodeURIComponent(email.uid)}/attachment/${encodeURIComponent(fileName)}`);
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.detail || 'Attachment download failed');
+                        }
+                        const blob = await res.blob();
+                        this.triggerBlobDownload(blob, fileName);
+                        this.showToast(`Downloading attachment: ${fileName}`);
+                    } catch (e) {
+                        this.showToast(e.message || 'Attachment download failed');
+                    }
+                },
+
+                // Delete — the backend has no IMAP delete/move endpoint yet, so this
+                // only removes the item from the current view (not the mailbox).
+                deleteSelectedEmails() {
+                    const count = this.selectedEmailIds.length;
+                    this.emails = this.emails.filter(e => !this.selectedEmailIds.includes(e.uid));
+                    this.selectedEmailIds = [];
+                    this.selectedEmail = this.emails.length > 0 ? this.emails[0] : null;
+                    this.showToast(`Removed ${count} email(s) from this view (server-side delete isn't available yet)`);
+                },
+
+                deleteSingleEmail(uid) {
+                    this.emails = this.emails.filter(e => e.uid !== uid);
+                    this.selectedEmail = this.emails.length > 0 ? this.emails[0] : null;
+                    this.showToast("Removed from this view (server-side delete isn't available yet)");
+                },
+
+                // Mark as read for real — fetching a message via IMAP sets \Seen,
+                // so this just opens each selected message on the server.
+                async markSelectedReadStatus() {
+                    const ids = [...this.selectedEmailIds];
+                    for (const uid of ids) {
+                        const email = this.emails.find(e => e.uid === uid);
+                        if (email && !email.read) {
+                            try {
+                                await this.apiFetch(`/api/email/${encodeURIComponent(email.folder)}/${encodeURIComponent(uid)}`);
+                                email.read = true;
+                            } catch (e) { /* ignore per-item failure */ }
+                        }
+                    }
+                    this.showToast('Marked selected as read');
+                    this.loadFolders();
+                },
+
+                // Reset Filters — clears filters and re-runs the real search
+                resetFilters() {
+                    this.searchQuery = '';
+                    this.filterFrom = '';
+                    this.filterTo = '';
+                    this.filterSubject = '';
+                    this.filterHasAttachment = false;
+                    this.dateFrom = '';
+                    this.dateTo = '';
+                    this.searchMail(1);
+                    this.showToast('All search filters reset');
+                },
+
+                isFilterActive() {
+                    return this.filterFrom || this.filterTo || this.filterSubject || this.filterHasAttachment || this.dateFrom || this.dateTo;
+                },
+
+                // Sign out back to the login gate
+                signOut() {
+                    this.clearSession();
+                    this.selectedEmailIds = [];
+                    this.selectedEmail = null;
+                    this.emails = [];
+                    this.folders = [];
+                    this.showAdvancedSearch = false;
+                    this.showComposeModal = false;
+                },
+
+                // Compose & Reply — the backend only reads/downloads mail over IMAP;
+                // it has no SMTP send endpoint yet, so sending is not wired up.
+                sendEmail() {
+                    this.showComposeModal = false;
+                    this.composeTo = '';
+                    this.composeSubject = '';
+                    this.composeBody = '';
+                    this.showToast("Sending isn't wired up yet — this backend only reads and downloads mail (no SMTP send endpoint)");
+                },
+
+                replyEmail() {
+                    if (!this.selectedEmail) return;
+                    this.composeTo = this.selectedEmail.fromEmail;
+                    this.composeSubject = 'Re: ' + this.selectedEmail.subject;
+                    this.composeBody = `\n\n--- Original Message ---\nFrom: ${this.selectedEmail.fromName}\nSubject: ${this.selectedEmail.subject}\n`;
+                    this.showComposeModal = true;
+                },
+
+                printEmail(email) {
+                    this.showToast(`Print dialog initiated for ID: ${email.id}`);
+                    window.print();
+                },
+
+                // Helpers
+                getInitials(name) {
+                    if (!name) return 'EX';
+                    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                },
+
+                getFileIcon(type) {
+                    if (type === 'pdf') return 'fa-solid fa-file-pdf text-rose-500';
+                    if (type === 'xls') return 'fa-solid fa-file-excel text-emerald-500';
+                    if (type === 'doc') return 'fa-solid fa-file-word text-[var(--accent-500)]';
+                    return 'fa-solid fa-file text-slate-400';
+                },
+
+                showToast(msg) {
+                    this.toast.message = msg;
+                    this.toast.visible = true;
+                    setTimeout(() => {
+                        this.toast.visible = false;
+                    }, 3000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
