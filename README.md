@@ -1,137 +1,163 @@
-# 📧 Smart Enterprise Mail Automation & Filtering Tool
+# 📬 MailOps — Enterprise Mail Console
 
-A production-ready Python application designed for **automated email ingestion, intelligent folder monitoring, and operational email management**. 
+**A real, working webmail client — not a UI mockup.** MailOps connects to any real IMAP mailbox (Gmail, Office 365, cPanel, Zimbra), lets you search, read, and bulk-download mail as real `.zip` archives, and streams large exports straight to Google Drive when they're too big to download directly.
 
-Built specifically for high-volume enterprise environments, this system connects to mailbox infrastructure via IMAP, automatically discovers and categorizes incoming messages, filters non-essential communications, and provides a real-time web dashboard for email previewing, tracking, and execution.
+Built as a lean **3-file full-stack project**: one FastAPI backend, one Alpine.js + Tailwind frontend, one requirements file. No database, no build step, no framework bloat — just clean, deployable code.
 
----
-
-## ⚙️ Operational Impact
-
-* **Automated Mailbox Monitoring:** Eliminates manual tracking across multiple email folders and shared operational mailboxes.
-* **Intelligent Domain & Intent Filtering:** Automatically separates internal operational communications from external vendor/insurer updates using domain-matching and regex rules.
-* **Stateless & Idempotent Execution:** Leverages IMAP UID-based processing to prevent duplicate processing or sequence conflicts across distributed cloud environments.
-* **Instant Mail Preview & Attachment Handling:** Renders HTML email previews and handles attachments directly from the dashboard without needing full email client access.
+> 🔗 **Live demo:** *add your deployed Vercel URL here*
+> 🖼️ **Screenshots:** *add 2–3 screenshots of the inbox, email detail view, and settings panel here*
 
 ---
 
-## 💼 Business Impact
+## ✨ Why this project stands out
 
-* **Reduced Processing Delays:** Accelerates email-driven workflows (such as customer queries, vendor billing, and status updates) through real-time mailbox discovery.
-* **Enhanced Productivity:** Frees operations teams from spending hours daily scanning, sorting, and manually forwarding routine emails.
-* **Low Operational Overhead:** Designed with efficient filtering logic to minimize API/LLM processing costs by processing only relevant operational emails.
-* **Audit-Ready Mail Tracking:** Maintains full historical traceability for every processed message, reducing compliance risks and lost communications.
-
----
-
-## 👨‍💻 Developer Information
-
-* **Backend Engine:** Built on Python 3 with Flask for lightweight WSGI web API routing and IMAP communication (`imaplib`, `email`).
-* **Frontend UI:** Modern Single Page Application (SPA) dashboard built using HTML5, CSS3, and JavaScript for seamless interaction and mail monitoring.
-* **Stateless IMAP Logic:** Implements robust UID fetch routines to ensure idempotent, serverless-friendly execution.
-* **Deployment Optimization:** Pre-configured with `vercel.json` for zero-downtime serverless deployment on Vercel (`@vercel/python`).
+- **It's real, not fake data.** Every email, folder, attachment, and download in this app comes from a live IMAP connection — there's no mock JSON sitting behind the UI.
+- **Handles the hard parts of email properly:** MIME parsing, IMAP `BODYSTRUCTURE` parsing for attachments, correct UID-based fetch ordering, character-set decoding of headers, and streaming multi-gigabyte zip downloads without loading them into memory.
+- **Production-minded security:** credentials are never stored in plaintext — passwords are Fernet-encrypted at rest, sessions are signed JWTs, and nothing is hardcoded (all secrets come from environment variables).
+- **Thoughtful UX details:** 10 accent color themes, light/dark mode, configurable mail sorting, a working audit-log export, responsive layout, and a genuinely fast advanced-search experience.
+- **Deploys in minutes:** ships as a single Vercel-ready serverless function — clone, set 2 environment variables, deploy.
 
 ---
 
-## 🌟 Key Capabilities & Features
+## 🚀 Features
 
-### 📬 1. Smart IMAP Ingestion & Folder Discovery
-* Multi-folder mailbox scanning with dynamic date-range filtering.
-* Robust SSL connection handling with app password authentication support.
+### Mail
+- 🔐 Real IMAP sign-in for Gmail, Google Workspace, Office 365, cPanel, and Zimbra (auto-detects the IMAP host from the email domain)
+- 📥 Live inbox with real folder counts, unread badges, and per-folder navigation
+- 🔎 Universal search plus an advanced filter drawer (from, to, subject, has-attachment, date range)
+- ↕️ Sortable mail list — newest first, oldest first, sender A–Z, or unread first
+- 📎 Full attachment support — preview metadata and download individual files or entire messages
+- 📤 Bulk download of selected emails as a `.zip` (with or without attachments), streamed directly from the server
+- ☁️ Automatic Google Drive hand-off for exports too large to stream to the browser
+- ✅ Real read/unread state, synced back to the mail server via IMAP flags
 
-### 🔍 2. Rule-Based Filtering & Routing
-* Domain-level sender extraction to categorize external vs. internal emails.
-* Subject and body regex matching to filter out low-priority automated notifications.
-
-### 🖥️ 3. Web Dashboard & Preview Engine
-* Live email list monitoring with UID tracking.
-* In-browser HTML rendering and email body previewing.
+### Interface
+- 🎨 10 selectable accent color themes + light/dark mode, managed from a dedicated **Settings** panel
+- 🧾 A working **Security & Audit Log** — every sign-in, sign-out, download, delete, and settings change is recorded and exportable as a real `.csv` file
+- 📱 Responsive three-pane layout (folders → list → reading pane)
+- ⚡ Debounced search, optimistic UI states, toast notifications
 
 ---
 
-## 🏗️ Architecture & Technical Stack
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python 3, [FastAPI](https://fastapi.tiangolo.com/), `imaplib` (real IMAP client) |
+| Auth & Security | JWT (`PyJWT`), Fernet symmetric encryption (`cryptography`) |
+| Bulk downloads | `zipstream-ng` (true streaming zip, no full-file buffering) |
+| Cloud storage | Google Drive API (`google-api-python-client`, OAuth2) |
+| Frontend | Alpine.js (reactive state, no build step), Tailwind CSS (CDN) |
+| Deployment | Vercel serverless (Python runtime) |
+
+**Why this stack:** it's intentionally minimal — a single backend file and a single HTML file, deployable anywhere Python runs, with zero frontend build pipeline. It demonstrates the ability to design a real system end-to-end rather than leaning on scaffolding.
+
+---
+
+## 🧩 Architecture
 
 ```
-   ┌──────────────────┐      IMAP (SSL)       ┌───────────────────────┐
-   │ Enterprise Mail  ├──────────────────────►│  Flask Web Engine     │
-   │ Mailbox Folders  │                       │  (app.py)             │
-   └──────────────────┘                       └──────────┬────────────┘
-                                                         │
-                                                         ▼
-   ┌──────────────────┐     Interactive UI    ┌───────────────────────┐
-   │ Web Dashboard /  │◄──────────────────────┤ Email Parser & API    │
-   │ Preview Interface│                       │ Endpoint Layer        │
-   └──────────────────┘                       └───────────────────────┘
+┌─────────────────┐      HTTPS / JWT       ┌───────────────────┐      IMAP / SMTP-less      ┌─────────────────┐
+│   index.html     │  ───────────────────▶  │      app.py        │  ────────────────────────▶ │  Mail Provider   │
+│ (Alpine + Tail-  │  ◀───────────────────  │   (FastAPI)         │  ◀──────────────────────── │ (Gmail / O365 /  │
+│  wind, no build) │      JSON / zip        │                     │        real mailbox         │  cPanel / Zimbra)│
+└─────────────────┘                        └─────────┬───────────┘
+                                                       │ OAuth2
+                                                       ▼
+                                             ┌───────────────────┐
+                                             │   Google Drive     │
+                                             │  (large exports)   │
+                                             └───────────────────┘
 ```
 
-* **Backend:** Python 3, Flask, `imaplib`, `email`
-* **Frontend:** Vanilla JavaScript (ES6+), HTML5, CSS3
-* **Deployment:** Vercel Serverless (`vercel.json`) / WSGI
+The backend never persists mail — every request opens a fresh authenticated IMAP session, fetches exactly what's needed, and closes it. Session state lives entirely in a signed JWT held by the browser.
 
 ---
 
-## 📁 Repository Structure
+## 📡 API Reference
 
-```
-.
-├── app.py              # Main Flask server handling IMAP connections & email APIs
-├── index.html          # Web dashboard for mailbox viewing, filtering & email previews
-├── vercel.json         # Serverless deployment configuration
-├── requirements.txt    # Required Python dependencies
-└── README.md           # Project documentation
-```
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/auth/login` | Authenticate against a real IMAP server, returns a JWT |
+| `GET` | `/api/auth/google/authorize` | Get the Google OAuth consent URL |
+| `GET` | `/api/auth/google/callback` | OAuth2 redirect handler |
+| `POST` | `/api/auth/attach-drive` | Link a Google Drive account to the current session |
+| `GET` | `/api/auth/drive/status` | Check Drive connection + quota |
+| `GET` | `/api/folders` | List real mailbox folders with unread/total counts |
+| `POST` | `/api/search` | Server-side search across folder, query, sender, subject, date range (paginated) |
+| `GET` | `/api/email/{folder}/{uid}` | Fetch a full email (body, headers, attachment list) |
+| `GET` | `/api/email/{folder}/{uid}/attachment/{filename}` | Download a single attachment |
+| `POST` | `/api/download/estimate` | Estimate zip size before committing to a bulk download |
+| `POST` | `/api/download` | Stream a real zip archive, or upload to Drive if it's too large |
+| `GET` | `/api/health` | Health check |
 
 ---
 
-## 🚀 Setup & Installation
+## ⚙️ Getting Started
 
-### 1. Prerequisites
-* Python 3.9 or higher
-* IMAP-enabled email account (e.g., Gmail with App Password enabled)
-
-### 2. Local Setup
-
+### 1. Clone & install
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/mail-tool-main.git
-cd mail-tool-main
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+git clone <your-repo-url>
+cd mailops
 pip install -r requirements.txt
 ```
 
-### 3. Environment Setup & Execution
-
-Set up your IMAP credentials in your environment or `.env` file:
-
-```env
-IMAP_HOST=imap.gmail.com
-IMAP_PORT=993
-IMAP_USER=your_email@organization.com
-IMAP_PASS=your_app_password
-```
-
-Run the application:
-
+### 2. Configure environment variables
 ```bash
-python app.py
+JWT_SECRET=<a long random string>          # required — signs session tokens
+FERNET_KEY=<a Fernet.generate_key() value> # required — encrypts stored IMAP passwords
+
+# Optional — only needed for Google Drive exports
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
 ```
-Open `http://localhost:5000` in your web browser.
+
+Generate a Fernet key:
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+### 3. Run locally
+```bash
+uvicorn app:app --reload
+```
+Visit `http://localhost:8000`. Sign in with a real Gmail/Workspace App Password or a corporate IMAP mailbox.
+
+### 4. Deploy to Vercel
+```bash
+vercel
+```
+This repo ships with a `vercel.json` already configured for the Python runtime — just set the environment variables in the Vercel dashboard and deploy.
 
 ---
 
-## ☁️ Serverless Deployment (Vercel)
+## 🔒 Security Notes
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Run `vercel` in the project root folder.
-3. Add environment variables in **Vercel Project Settings**.
+- IMAP passwords are **never stored in plaintext** — they're Fernet-encrypted and embedded only inside the signed JWT held by the client.
+- All secrets (`JWT_SECRET`, `FERNET_KEY`, Google OAuth credentials) are read from environment variables — nothing sensitive is committed to source.
+- Every mailbox action re-authenticates a fresh IMAP session; there is no server-side session store to leak.
 
 ---
 
-## 🛡️ License & Contributing
+## 🗺️ Roadmap
 
-Open-source under the **MIT License**. Contributions are welcome!
+- [ ] SMTP send support (currently read/search/download only)
+- [ ] Server-side delete/move (currently view-only removal)
+- [ ] Persistent labels and starring across sessions
+
+---
+
+## 👤 About the Developer
+
+*(Replace this section with your own introduction — a couple of lines about your background, what you're looking for, and links to your GitHub/LinkedIn/portfolio. This is the section recruiters read first, so keep it short and confident.)*
+
+**[Your Name]** — building practical, production-style projects to demonstrate full-stack engineering skills: real API integrations, secure auth, streaming file handling, and clean UI/UX — not just tutorials.
+
+📧 your.email@example.com · 💼 [LinkedIn](#) · 💻 [GitHub](#)
+
+---
+
+## 📄 License
+
+This project is available under the MIT License — feel free to fork, adapt, and build on it.
